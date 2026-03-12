@@ -1,0 +1,170 @@
+/* ===== HEADER CONTAINER ===== */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 40px;
+background:#4f46e5;
+color:white;
+position:sticky;
+top:0;
+z-index:1000;
+}
+
+/* ===== LOGO ===== */
+
+.logo{
+font-size:24px;
+font-weight:bold;
+letter-spacing:1px;
+}
+
+/* ===== NAVIGATION ===== */
+
+.nav{
+display:flex;
+align-items:center;
+gap:25px;
+}
+
+.nav a{
+text-decoration:none;
+color:white;
+font-weight:500;
+transition:0.3s;
+}
+
+.nav a:hover{
+opacity:0.7;
+}
+
+/* ===== DARK MODE BUTTON ===== */
+
+.dark-btn{
+background:white;
+border:none;
+padding:6px 12px;
+border-radius:20px;
+cursor:pointer;
+font-size:16px;
+transition:0.3s;
+}
+
+.dark-btn:hover{
+transform:scale(1.1);
+}
+
+/* ===== PROFILE MENU ===== */
+
+.profile-menu{
+position:relative;
+}
+
+/* ===== PROFILE ICON ===== */
+
+.profile-icon{
+font-size:22px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.profile-icon:hover{
+transform:scale(1.2);
+}
+
+/* ===== DROPDOWN ===== */
+
+.dropdown{
+position:absolute;
+top:40px;
+right:0;
+background:white;
+color:black;
+border-radius:8px;
+padding:10px 0;
+min-width:140px;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
+display:flex;
+flex-direction:column;
+}
+
+/* dropdown links */
+
+.dropdown a{
+padding:8px 15px;
+text-decoration:none;
+color:black;
+font-size:14px;
+}
+
+.dropdown a:hover{
+background:#f2f2f2;
+}
+
+/* logout button */
+
+.dropdown button{
+margin:5px 10px;
+padding:6px;
+border:none;
+background:#ef4444;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+
+.dropdown button:hover{
+background:#dc2626;
+}
+
+/* ===== DARK MODE ===== */
+
+body.dark-mode{
+background:#121212;
+color:white;
+}
+
+body.dark-mode .header{
+background:#1f1f1f;
+}
+
+body.dark-mode .nav a{
+color:white;
+}
+
+body.dark-mode .dropdown{
+background:#2a2a2a;
+color:white;
+}
+
+body.dark-mode .dropdown a{
+color:white;
+}
+
+body.dark-mode .dropdown a:hover{
+background:#333;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+
+@media (max-width:768px){
+
+.header{
+padding:15px 20px;
+}
+
+.nav{
+gap:15px;
+}
+
+.logo{
+font-size:20px;
+}
+
+.dark-btn{
+padding:5px 10px;
+font-size:14px;
+}
+
+}
