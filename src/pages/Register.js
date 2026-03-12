@@ -24,7 +24,7 @@ const validatePassword = (password)=>{
 return /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$/.test(password);
 };
 
-const handleRegister = (e)=>{
+const handleRegister = async (e)=>{
 e.preventDefault();
 
 if(name.trim()===""){
@@ -47,24 +47,38 @@ setError("Password must contain 6 characters, 1 uppercase, 1 number, 1 special c
 return;
 }
 
-const users = JSON.parse(localStorage.getItem("users")) || [];
+try{
 
-const userExists = users.find((user)=>user.email===email);
+const res = await fetch("http://localhost:5000/api/auth/register",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name,
+email,
+phone,   // added phone number
+password
+})
+});
 
-if(userExists){
-setError("Email already registered. Please login.");
+const data = await res.json();
+
+if(!res.ok){
+setError(data.message || "Registration failed");
 return;
 }
 
-const newUser = { name,email,phone,password };
-
-users.push(newUser);
-
-localStorage.setItem("users",JSON.stringify(users));
-
-toast.success("Account created successfully");
+toast.success("Register Successfully");   // success message
 
 navigate("/login");
+
+}catch(err){
+
+toast.error("Server error");
+
+}
+
 };
 
 return(
@@ -115,8 +129,8 @@ required
 />
 
 <input
-type="text"
-placeholder="Phone Number"
+type="tel"
+placeholder="Mobile Number"
 value={phone}
 onChange={(e)=>{
 setPhone(e.target.value);

@@ -11,22 +11,28 @@ const [selectedAlbum,setSelectedAlbum] = useState("All");
 
 useEffect(()=>{
 
-const storedImages =
-JSON.parse(localStorage.getItem("photos")) || [];
-
-setPhotos(storedImages);
+fetch("http://localhost:5000/api/photos")
+.then(res => res.json())
+.then(data => setPhotos(data))
+.catch(err => console.log(err));
 
 },[]);
 
-const deletePhoto = (index)=>{
+const deletePhoto = async (id) => {
 
-const updatedPhotos = [...photos];
+try{
 
-updatedPhotos.splice(index,1);
+await fetch(`http://localhost:5000/api/photos/${id}`,{
+method:"DELETE"
+});
 
-setPhotos(updatedPhotos);
+setPhotos(photos.filter(photo => photo._id !== id));
 
-localStorage.setItem("photos",JSON.stringify(updatedPhotos));
+}catch(error){
+
+console.log(error);
+
+}
 
 };
 
@@ -38,7 +44,9 @@ selectedAlbum === "All"
 return(
 
 <div>
+
 <Header />
+
 <div className="gallery">
 
 <h2>Your Photo Gallery</h2>
@@ -67,22 +75,24 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 ) : (
 
 filteredPhotos.map((photo,index)=>(
+
 <div className="photo-card" key={index}>
 
 <img
-src={photo.image}
+src={photo.imageUrl}
 alt="gallery"
-onClick={()=>setSelectedImage(photo.image)}
+onClick={()=>setSelectedImage(photo.imageUrl)}
 />
 
 <button
 className="delete-btn"
-onClick={()=>deletePhoto(index)}
+onClick={()=>deletePhoto(photo._id)}
 >
 Delete
 </button>
 
 </div>
+
 ))
 
 )}
@@ -91,7 +101,7 @@ Delete
 
 </div>
 
-{/* FULLSCREEN VIEW */}
+{/* FULLSCREEN IMAGE VIEW */}
 
 {selectedImage && (
 

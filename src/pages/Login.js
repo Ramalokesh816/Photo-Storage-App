@@ -26,37 +26,49 @@ const validateEmail = (email)=>{
 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-const handleLogin = (e)=>{
+const handleLogin = async (e)=>{
 e.preventDefault();
 
 if(!validateEmail(email)){
-setError("Enter a valid email format (example@email.com)");
+setError("Enter a valid email format");
 return;
 }
 
-if(password.length < 4){
-setError("Password must contain at least 4 characters");
+try{
+
+const res = await fetch("http://localhost:5000/api/auth/login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email,
+password
+})
+});
+
+const data = await res.json();
+
+if(!res.ok){
+toast.error(data.message || "Login failed");
 return;
 }
 
-const registeredUsers =
-JSON.parse(localStorage.getItem("users")) || [];
+localStorage.setItem("token",data.token);
 
-const userExists = registeredUsers.find(
-(user)=> user.email === email && user.password === password
-);
+login(data.user);
 
-if(!userExists){
-toast.error("Invalid email or password");
-return;
-}
-
-login(userExists.email);
-
-toast.success("Login successful");
+toast.success("Login Successfully");   // success message
 
 navigate("/");
+
+}catch(err){
+
+toast.error("Server error");
+
 }
+
+};
 
 return(
 
@@ -127,18 +139,6 @@ Login
 <p className="register-link">
 Don't have an account? <Link to="/register">Register</Link>
 </p>
-
-<div className="login-rules">
-
-<h4>Login Rules</h4>
-
-<ul>
-<li>Enter valid email format</li>
-<li>Email must be registered</li>
-<li>Password must match registered account</li>
-</ul>
-
-</div>
 
 </div>
 
