@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
+import Hls from "hls.js";
+
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+
 import "../styles/Gallery.css";
 
 function Gallery(){
@@ -18,7 +21,9 @@ const [zoom,setZoom] = useState(1);
 const [touchStart,setTouchStart] = useState(null);
 const [touchEnd,setTouchEnd] = useState(null);
 
-/* FETCH PHOTOS */
+const videoRef = useRef(null);
+
+/* ================= FETCH ================= */
 
 useEffect(()=>{
 fetchPhotos();
@@ -39,6 +44,7 @@ headers:{Authorization:`Bearer ${token}`}
 if(!res.ok) throw new Error();
 
 const data = await res.json();
+
 setPhotos(data);
 
 }catch{
@@ -51,7 +57,7 @@ setLoading(false);
 
 };
 
-/* DELETE PHOTO */
+/* ================= DELETE ================= */
 
 const deletePhoto = async(id)=>{
 
@@ -68,7 +74,7 @@ headers:{Authorization:`Bearer ${token}`}
 
 if(!res.ok) throw new Error();
 
-setPhotos(prev=>prev.filter(photo=>photo._id !== id));
+setPhotos(prev=>prev.filter(photo=>photo._id!==id));
 
 toast.success("Photo deleted");
 
@@ -80,16 +86,14 @@ toast.error("Delete failed");
 
 };
 
-/* FILTER */
+/* ================= FILTER ================= */
 
 const filteredPhotos =
-selectedAlbum === "All"
+selectedAlbum==="All"
 ? photos
-: photos.filter(photo =>
-photo.album?.toLowerCase() === selectedAlbum.toLowerCase()
-);
+: photos.filter(p=>p.album?.toLowerCase()===selectedAlbum.toLowerCase());
 
-/* OPEN MEDIA */
+/* ================= OPEN ================= */
 
 const openMedia=(url,type,index)=>{
 setSelectedMedia(url);
@@ -98,7 +102,7 @@ setSelectedIndex(index);
 setZoom(1);
 };
 
-/* NEXT */
+/* ================= NEXT ================= */
 
 const nextMedia=(e)=>{
 e.stopPropagation();
@@ -110,7 +114,7 @@ setSelectedMedia(filteredPhotos[nextIndex].imageUrl);
 setSelectedType(filteredPhotos[nextIndex].mediaType);
 };
 
-/* PREVIOUS */
+/* ================= PREVIOUS ================= */
 
 const prevMedia=(e)=>{
 e.stopPropagation();
@@ -122,14 +126,14 @@ setSelectedMedia(filteredPhotos[prevIndex].imageUrl);
 setSelectedType(filteredPhotos[prevIndex].mediaType);
 };
 
-/* ZOOM */
+/* ================= ZOOM ================= */
 
 const toggleZoom=()=>{
 if(selectedType!=="image") return;
 setZoom(prev=>prev===1?2:1);
 };
 
-/* MOBILE SWIPE */
+/* ================= SWIPE ================= */
 
 const handleTouchStart=(e)=>{
 setTouchStart(e.touches[0].clientX);
@@ -141,7 +145,7 @@ setTouchEnd(e.touches[0].clientX);
 
 const handleTouchEnd=()=>{
 
-if(!touchStart || !touchEnd) return;
+if(!touchStart||!touchEnd) return;
 
 const distance=touchStart-touchEnd;
 
@@ -158,7 +162,36 @@ setTouchEnd(null);
 
 };
 
-/* LOADING */
+/* ================= HLS STREAMING ================= */
+
+useEffect(()=>{
+
+if(selectedMedia && selectedType==="video"){
+
+const video=videoRef.current;
+
+const hlsUrl=
+selectedMedia.replace("/upload/","/upload/sp_full_hd/") + ".m3u8";
+
+if(Hls.isSupported()){
+
+const hls=new Hls();
+
+hls.loadSource(hlsUrl);
+
+hls.attachMedia(video);
+
+}else{
+
+video.src=hlsUrl;
+
+}
+
+}
+
+},[selectedMedia]);
+
+/* ================= LOADING ================= */
 
 if(loading){
 
@@ -174,7 +207,7 @@ return(
 
 }
 
-/* UI */
+/* ================= UI ================= */
 
 return(
 
@@ -212,7 +245,7 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 className="media-item"
 onClick={()=>openMedia(photo.imageUrl,"video",index)}
 >
-<source src={`${photo.imageUrl}?f_auto,q_auto:eco,fl_streaming,vc_auto`} />
+<source src={photo.imageUrl}/>
 </video>
 ):(
 <img
@@ -241,9 +274,9 @@ Delete
 
 </div>
 
-{/* MODAL */}
+{/* ================= MODAL ================= */}
 
-{selectedMedia &&(
+{selectedMedia&&(
 
 <div
 className="modal"
@@ -257,15 +290,12 @@ onTouchEnd={handleTouchEnd}
 
 {selectedType==="video"?(
 <video
+ref={videoRef}
 controls
 playsInline
-preload="metadata"
 className="modal-video"
-style={{width:"100%",height:"auto"}}
 onClick={(e)=>e.stopPropagation()}
->
-<source src={`${selectedMedia}?f_auto,q_auto:eco,fl_progressive`} type="video/mp4"/>
-</video>
+/>
 ):(
 <img
 src={selectedMedia}
