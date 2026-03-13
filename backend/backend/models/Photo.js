@@ -15,6 +15,7 @@ type:String,
 enum:["image","video"],
 default:"image"
 },
+
 size:Number,
 
 userId:{

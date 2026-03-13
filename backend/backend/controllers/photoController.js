@@ -19,26 +19,50 @@ const album = req.body.album;
 /* Upload buffer to Cloudinary */
 
 const streamUpload = () => {
+
 return new Promise((resolve,reject)=>{
 
 const stream = cloudinary.uploader.upload_stream(
-{ resource_type:"auto" },
+{
+resource_type:"video",
+
+// streaming optimization
+chunk_size: 6000000,
+
+// auto optimization
+quality: "auto",
+fetch_format: "auto",
+
+// generate streaming versions
+eager: [
+{ streaming_profile: "full_hd", format: "m3u8" }
+],
+
+eager_async: true
+},
 (error,result)=>{
 
-if(result) resolve(result);
-else reject(error);
+if(result){
+resolve(result);
+}else{
+reject(error);
+}
 
 }
+
 );
 
-streamifier.createReadStream(req.file.buffer).pipe(stream);
+streamifier
+.createReadStream(req.file.buffer)
+.pipe(stream);
 
 });
+
 };
 
 const result = await streamUpload();
 
-/* Save in MongoDB */
+/* Save media to MongoDB */
 
 const photo = new Photo({
 
@@ -64,8 +88,11 @@ res.json(photo);
 
 }catch(error){
 
-console.log(error);
-res.status(500).json({message:"Upload failed"});
+console.log("UPLOAD ERROR:",error);
+
+res.status(500).json({
+message:"Upload failed"
+});
 
 }
 
@@ -83,13 +110,17 @@ if(!req.user){
 return res.status(401).json({message:"Unauthorized"});
 }
 
-const filter = { userId:req.user.id };
+const filter = {
+userId:req.user.id
+};
 
 if(req.query.album){
 filter.album = req.query.album;
 }
 
-const photos = await Photo.find(filter).sort({createdAt:-1});
+const photos = await Photo
+.find(filter)
+.sort({createdAt:-1});
 
 res.json(photos);
 
@@ -97,7 +128,9 @@ res.json(photos);
 
 console.log("GET PHOTOS ERROR:",error);
 
-res.status(500).json({message:"Failed to fetch photos"});
+res.status(500).json({
+message:"Failed to fetch photos"
+});
 
 }
 
@@ -114,23 +147,32 @@ try{
 const photo = await Photo.findById(req.params.id);
 
 if(!photo){
-return res.status(404).json({message:"Photo not found"});
+return res.status(404).json({
+message:"Photo not found"
+});
 }
 
 if(photo.userId.toString() !== req.user.id){
-return res.status(403).json({message:"Not authorized"});
+return res.status(403).json({
+message:"Not authorized"
+});
 }
 
 await cloudinary.uploader.destroy(photo.publicId);
 
 await Photo.findByIdAndDelete(req.params.id);
 
-res.json({message:"Photo deleted successfully"});
+res.json({
+message:"Photo deleted successfully"
+});
 
 }catch(error){
 
-console.log(error);
-res.status(500).json({message:"Delete failed"});
+console.log("DELETE ERROR:",error);
+
+res.status(500).json({
+message:"Delete failed"
+});
 
 }
 

@@ -254,11 +254,12 @@ onClick={()=>setSelectedMedia(null)}
 
 <video
 controls
-autoPlay
+playsInline
+preload="metadata"
 className="modal-video"
 onClick={(e)=>e.stopPropagation()}
 >
-<source src={selectedMedia}/>
+<source src={selectedMedia} type="application/x-mpegURL" />
 </video>
 
 ) : (

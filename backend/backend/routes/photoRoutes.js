@@ -10,13 +10,28 @@ deletePhoto
 
 const authMiddleware = require("../middleware/authMiddleware");
 
+/* Multer Setup */
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-router.post("/upload", authMiddleware, upload.single("file"), uploadPhoto);
+router.post(
+"/upload",
+authMiddleware,
+upload.single("file"),
+uploadPhoto
+);
 
-router.get("/photos", authMiddleware, getPhotos);
+router.get(
+"/photos",
+authMiddleware,
+getPhotos
+);
 
-router.delete("/photos/:id", authMiddleware, deletePhoto);
+router.delete(
+"/photos/:id",
+authMiddleware,
+deletePhoto
+);
 
 module.exports = router;
