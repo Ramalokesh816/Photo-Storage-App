@@ -26,7 +26,7 @@ try{
 
 const token = localStorage.getItem("token");
 
-const res = await fetch("http://localhost:5000/api/photos",{
+const res = await fetch("https://photo-storage-app.onrender.com/api/photos",{
 headers:{
 Authorization:`Bearer ${token}`
 }
@@ -61,7 +61,7 @@ try{
 
 const token = localStorage.getItem("token");
 
-const res = await fetch(`http://localhost:5000/api/photos/${id}`,{
+const res = await fetch(`https://photo-storage-app.onrender.com/api/photos/${id}`,{
 method:"DELETE",
 headers:{
 Authorization:`Bearer ${token}`

@@ -119,7 +119,7 @@ const token = localStorage.getItem("token");
 
 for(let i=0;i<files.length;i++){
 
-await fetch("http://localhost:5000/api/upload",{
+await fetch("https://photo-storage-app.onrender.com/api/upload",{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
