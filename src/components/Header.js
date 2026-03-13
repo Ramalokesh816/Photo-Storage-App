@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Header.css";
+import logo from "../components/logo.png";
 
 function Header(){
 
@@ -10,7 +11,10 @@ const { user, logout } = useAuth();
 const [dropdownOpen,setDropdownOpen] = useState(false);
 const [darkMode,setDarkMode] = useState(false);
 
-// Dark mode effect
+/* =========================
+   DARK MODE
+========================= */
+
 useEffect(()=>{
 
 const savedMode = localStorage.getItem("darkMode");
@@ -38,7 +42,17 @@ return(
 
 <header className="header">
 
-<h2 className="logo">PhotoVault</h2>
+{/* LOGO */}
+
+<Link to="/" className="logo">
+
+<img src={logo} alt="Vedha Memories Logo"/>
+
+<span>Vedha Memories</span>
+
+</Link>
+
+{/* NAVIGATION */}
 
 <nav className="nav">
 
@@ -46,20 +60,20 @@ return(
 
 {user && <Link to="/gallery">Gallery</Link>}
 {user && <Link to="/upload">Upload</Link>}
-
+{user && <Link to="/dashboard">Dashboard</Link>}
 {!user && <Link to="/login">Login</Link>}
 {!user && <Link to="/register">Register</Link>}
 
-{/* Dark Mode Toggle */}
+{/* DARK MODE BUTTON */}
 
 <button
 className="dark-btn"
 onClick={()=>setDarkMode(!darkMode)}
 >
-
 {darkMode ? "☀️" : "🌙"}
-
 </button>
+
+{/* PROFILE MENU */}
 
 {user && (
 

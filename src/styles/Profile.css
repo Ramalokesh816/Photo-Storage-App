@@ -1,84 +1,159 @@
+/* =========================
+   PROFILE PAGE BACKGROUND
+========================= */
+
 .profile-page{
+min-height:100vh;
 display:flex;
 justify-content:center;
+align-items:center;
 padding:40px;
-background:#f4f6f8;
-min-height:80vh;
+
+background:linear-gradient(-45deg,#36ef2d,#f15880,#6fb4f0,#00f2fe);
+font-family:Arial, Helvetica, sans-serif;
 }
+
+/* =========================
+   PROFILE CARD
+========================= */
 
 .profile-card{
 display:flex;
-width:1000px;
-background:white;
-border-radius:12px;
+max-width:900px;
+width:100%;
+background:linear-gradient(-45deg,#206bf7,#f15880);
+border-radius:16px;
 overflow:hidden;
-box-shadow:0 5px 20px rgba(0,0,0,0.1);
+box-shadow:0 15px 40px rgba(0,0,0,0.2);
 }
 
+/* =========================
+   LEFT PANEL
+========================= */
+
 .profile-left{
-width:300px;
-background:#0d0d0d;
-color:white;
+width:35%;
+background:#ef5121;
+padding:30px;
 display:flex;
 flex-direction:column;
 align-items:center;
-padding:40px 20px;
+text-align:center;
 }
 
 .profile-avatar{
-width:140px;
-height:140px;
+width:120px;
+height:120px;
 border-radius:50%;
 object-fit:cover;
+margin-bottom:15px;
 border:4px solid white;
-margin-bottom:20px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
 }
 
 .upload-btn{
-background:#17b6c4;
-padding:10px 25px;
-border-radius:25px;
+margin-top:5px;
+padding:8px 18px;
+background:#48f01e;
+color:black;
+border-radius:20px;
 cursor:pointer;
+font-size:14px;
+transition:0.3s;
+}
+
+.upload-btn:hover{
+background:#4f46e5;
+}
+
+.profile-left h3{
+margin-top:15px;
+}
+
+.email{
+color:#5e2dfe;
 margin-bottom:20px;
 }
 
 .logout-btn{
-background:red;
-border:none;
+background:#5a1af0;
 color:white;
+border:none;
 padding:10px 20px;
-border-radius:6px;
+border-radius:8px;
 cursor:pointer;
-margin-top:20px;
+transition:0.3s;
 }
+
+.logout-btn:hover{
+background:#dc2626;
+}
+
+/* =========================
+   RIGHT PANEL
+========================= */
 
 .profile-right{
 flex:1;
-padding:40px;
+padding:35px;
 }
 
 .profile-right h2{
 margin-bottom:20px;
 }
 
+/* form inputs */
+
 .profile-right input,
 .profile-right textarea{
 width:100%;
 padding:12px;
 margin-bottom:15px;
-border-radius:6px;
-border:1px solid #ccc;
+border-radius:8px;
+background-color: white;
+border:1px solid #1afa4b;
+font-size:14px;
+}
+
+.profile-right textarea{
+resize:none;
+height:90px;
+background-color: white;
+}
+
+/* buttons */
+
+.edit-btn,
+.save-btn{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+margin-top:10px;
+font-size:15px;
+}
+
+.edit-btn{
+background:#6366f1;
+}
+
+.edit-btn:hover{
+background:#4f46e5;
 }
 
 .save-btn{
-background:#17b6c4;
-border:none;
-color:white;
-padding:10px 25px;
-border-radius:6px;
-cursor:pointer;
-margin-top:10px;
+background:#10b981;
 }
+
+.save-btn:hover{
+background:#059669;
+}
+
+/* =========================
+   STATS SECTION
+========================= */
 
 .stats{
 display:flex;
@@ -87,14 +162,81 @@ margin-top:30px;
 }
 
 .stat-box{
-background:#f1f3f6;
-padding:20px;
-border-radius:8px;
-text-align:center;
 flex:1;
+background:#c4f819;
+padding:25px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 6px 20px rgba(0,0,0,0.1);
 }
 
 .stat-box h3{
-font-size:22px;
+font-size:26px;
 margin-bottom:5px;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+
+body.dark-mode .profile-page{
+background:linear-gradient(135deg,#0f172a,#1e293b);
+}
+
+body.dark-mode .profile-card{
+background:#1e293b;
+color:white;
+}
+
+body.dark-mode .profile-left{
+background:#020617;
+}
+
+body.dark-mode .profile-right input,
+body.dark-mode .profile-right textarea{
+background:#020617;
+border:1px solid #334155;
+color:white;
+}
+
+body.dark-mode .stat-box{
+background:#020617;
+color:white;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media(max-width:900px){
+
+.profile-card{
+flex-direction:column;
+max-width:500px;
+}
+
+.profile-left{
+width:100%;
+}
+
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:500px){
+
+.profile-page{
+padding:20px;
+}
+
+.profile-right{
+padding:25px 20px;
+}
+
+.stats{
+flex-direction:column;
+}
+
 }

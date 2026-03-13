@@ -1,51 +1,160 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles/Gallery.css";
 
-function Gallery(){
+function Gallery() {
 
 const [photos,setPhotos] = useState([]);
 const [selectedImage,setSelectedImage] = useState(null);
+const [selectedIndex,setSelectedIndex] = useState(null);
 const [selectedAlbum,setSelectedAlbum] = useState("All");
+const [loading,setLoading] = useState(true);
+
+/* ================================
+   FETCH PHOTOS FROM BACKEND
+================================ */
 
 useEffect(()=>{
-
-fetch("http://localhost:5000/api/photos")
-.then(res => res.json())
-.then(data => setPhotos(data))
-.catch(err => console.log(err));
-
+fetchPhotos();
 },[]);
 
-const deletePhoto = async (id) => {
+const fetchPhotos = async () => {
 
 try{
 
-await fetch(`http://localhost:5000/api/photos/${id}`,{
-method:"DELETE"
+const token = localStorage.getItem("token");
+
+const res = await fetch("http://localhost:5000/api/photos",{
+headers:{
+Authorization:`Bearer ${token}`
+}
 });
 
-setPhotos(photos.filter(photo => photo._id !== id));
+if(!res.ok){
+throw new Error("Failed to fetch photos");
+}
+
+const data = await res.json();
+
+setPhotos(data);
 
 }catch(error){
 
 console.log(error);
+toast.error("Failed to load gallery");
+
+}
+
+setLoading(false);
+
+};
+
+/* ================================
+   DELETE PHOTO
+================================ */
+
+const deletePhoto = async(id)=>{
+
+try{
+
+const token = localStorage.getItem("token");
+
+const res = await fetch(`http://localhost:5000/api/photos/${id}`,{
+method:"DELETE",
+headers:{
+Authorization:`Bearer ${token}`
+}
+});
+
+if(!res.ok){
+throw new Error("Delete failed");
+}
+
+setPhotos(prev => prev.filter(photo => photo._id !== id));
+
+toast.success("Photo deleted 🗑");
+
+}catch(error){
+
+console.log(error);
+toast.error("Delete failed");
 
 }
 
 };
 
+/* ================================
+   FILTER ALBUM
+================================ */
+
 const filteredPhotos =
 selectedAlbum === "All"
 ? photos
-: photos.filter(photo => photo.album === selectedAlbum);
+: photos.filter(photo =>
+photo.album?.toLowerCase() === selectedAlbum.toLowerCase()
+);
+
+/* ================================
+   IMAGE NAVIGATION
+================================ */
+
+const openImage = (url,index)=>{
+setSelectedImage(url);
+setSelectedIndex(index);
+};
+
+const nextImage = (e)=>{
+e.stopPropagation();
+
+if(selectedIndex === null) return;
+
+const nextIndex = (selectedIndex + 1) % filteredPhotos.length;
+
+setSelectedIndex(nextIndex);
+setSelectedImage(filteredPhotos[nextIndex].imageUrl);
+};
+
+const prevImage = (e)=>{
+e.stopPropagation();
+
+if(selectedIndex === null) return;
+
+const prevIndex =
+(selectedIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
+
+setSelectedIndex(prevIndex);
+setSelectedImage(filteredPhotos[prevIndex].imageUrl);
+};
+
+/* ================================
+   LOADING SCREEN
+================================ */
+
+if(loading){
+
+return(
+<div>
+<Header/>
+<div style={{textAlign:"center",marginTop:"120px"}}>
+<h2>Loading gallery...</h2>
+</div>
+<Footer/>
+</div>
+);
+
+}
+
+/* ================================
+   UI
+================================ */
 
 return(
 
 <div>
 
-<Header />
+<Header/>
 
 <div className="gallery">
 
@@ -75,14 +184,26 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 ) : (
 
 filteredPhotos.map((photo,index)=>(
+<div className="photo-card" key={photo._id}>
 
-<div className="photo-card" key={index}>
+{/* VIDEO */}
+
+{photo.mediaType === "video" ? (
+
+<video className="media-item" controls>
+<source src={photo.imageUrl} />
+</video>
+
+) : (
 
 <img
+className="media-item"
 src={photo.imageUrl}
 alt="gallery"
-onClick={()=>setSelectedImage(photo.imageUrl)}
+onClick={()=>openImage(photo.imageUrl,index)}
 />
+
+)}
 
 <button
 className="delete-btn"
@@ -92,7 +213,6 @@ Delete
 </button>
 
 </div>
-
 ))
 
 )}
@@ -101,7 +221,7 @@ Delete
 
 </div>
 
-{/* FULLSCREEN IMAGE VIEW */}
+{/* FULLSCREEN IMAGE */}
 
 {selectedImage && (
 
@@ -110,7 +230,15 @@ className="modal"
 onClick={()=>setSelectedImage(null)}
 >
 
+<button className="arrow left" onClick={prevImage}>
+❮
+</button>
+
 <img src={selectedImage} alt="large"/>
+
+<button className="arrow right" onClick={nextImage}>
+❯
+</button>
 
 </div>
 

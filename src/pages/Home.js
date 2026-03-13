@@ -7,16 +7,38 @@ import "../styles/Home.css";
 function Home(){
 
 const [photos,setPhotos] = useState([]);
-const [selectedImage,setSelectedImage] = useState(null);
+const [selectedMedia,setSelectedMedia] = useState(null);
+const [loading,setLoading] = useState(true);
 
 useEffect(()=>{
-
-const storedPhotos =
-JSON.parse(localStorage.getItem("photos")) || [];
-
-setPhotos(storedPhotos);
-
+fetchPhotos();
 },[]);
+
+const fetchPhotos = async ()=>{
+
+try{
+
+const token = localStorage.getItem("token");
+
+const res = await fetch("http://localhost:5000/api/photos",{
+headers:{
+Authorization:`Bearer ${token}`
+}
+});
+
+const data = await res.json();
+
+setPhotos(data);
+
+}catch(error){
+
+console.error("Failed to load photos",error);
+
+}
+
+setLoading(false);
+
+};
 
 const recentPhotos = photos.slice(-4).reverse();
 
@@ -37,7 +59,7 @@ return(
 <h1>Store Your Memories Safely</h1>
 
 <p>
-Upload, organize and access your photos anytime from anywhere.
+Upload, organize and access your photos and videos anytime from anywhere.
 </p>
 
 <Link to="/upload" className="hero-btn">
@@ -50,13 +72,14 @@ Start Uploading
 
 </section>
 
+
 {/* DASHBOARD */}
 
 <section className="dashboard">
 
 <div className="card">
 
-<h3>Total Photos</h3>
+<h3>Total Media</h3>
 
 <p className="count">
 {photos.length}
@@ -69,12 +92,13 @@ Start Uploading
 <h3>Quick Upload</h3>
 
 <Link to="/upload" className="upload-btn">
-Upload Photo
+Upload Media
 </Link>
 
 </div>
 
 </section>
+
 
 {/* RECENT UPLOADS */}
 
@@ -84,20 +108,40 @@ Upload Photo
 
 <div className="recent-grid">
 
-{recentPhotos.length === 0 ? (
+{loading ? (
 
-<p>No photos uploaded yet</p>
+<p>Loading media...</p>
+
+) : recentPhotos.length === 0 ? (
+
+<p>No media uploaded yet</p>
 
 ) : (
 
-recentPhotos.map((photo,index)=>(
+recentPhotos.map((photo)=>(
+
+<div key={photo._id} className="recent-card">
+
+{photo.mediaType === "image" ? (
 
 <img
-key={index}
-src={photo.image}
+src={photo.imageUrl}
 alt="recent"
-onClick={()=>setSelectedImage(photo.image)}
+onClick={()=>setSelectedMedia(photo)}
 />
+
+) : (
+
+<video
+controls
+onClick={()=>setSelectedMedia(photo)}
+>
+<source src={photo.imageUrl} type="video/mp4"/>
+</video>
+
+)}
+
+</div>
 
 ))
 
@@ -107,20 +151,32 @@ onClick={()=>setSelectedImage(photo.image)}
 
 </section>
 
+
 {/* FULLSCREEN VIEW */}
 
-{selectedImage && (
+{selectedMedia && (
 
 <div
 className="modal"
-onClick={()=>setSelectedImage(null)}
+onClick={()=>setSelectedMedia(null)}
 >
 
-<img src={selectedImage} alt="large"/>
+{selectedMedia.mediaType === "image" ? (
+
+<img src={selectedMedia.imageUrl} alt="large"/>
+
+) : (
+
+<video controls autoPlay>
+<source src={selectedMedia.imageUrl} type="video/mp4"/>
+</video>
+
+)}
 
 </div>
 
 )}
+
 
 {/* FEATURES */}
 
@@ -133,19 +189,19 @@ onClick={()=>setSelectedImage(null)}
 <div className="feature-card">
 <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="secure"/>
 <h3>Secure Storage</h3>
-<p>Your photos are safely stored in one place.</p>
+<p>Your photos and videos are safely stored in one place.</p>
 </div>
 
 <div className="feature-card">
 <img src="https://images.unsplash.com/photo-1492724441997-5dc865305da7" alt="gallery"/>
 <h3>Beautiful Gallery</h3>
-<p>View your photos in a clean gallery layout.</p>
+<p>View your media in a clean gallery layout.</p>
 </div>
 
 <div className="feature-card">
 <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2" alt="mobile"/>
 <h3>Mobile Friendly</h3>
-<p>Access your photos anytime on any device.</p>
+<p>Access your media anytime on any device.</p>
 </div>
 
 </div>

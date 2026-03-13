@@ -1,26 +1,67 @@
-/* ===== HEADER CONTAINER ===== */
+/* =========================
+   HEADER
+========================= */
 
 .header{
 display:flex;
 justify-content:space-between;
 align-items:center;
+
 padding:15px 40px;
-background:#4f46e5;
-color:white;
+
+background:linear-gradient(-45deg,#36ef2d,#f15880,#6fb4f0,#00f2fe);
+background-size:400% 400%;
+
+animation:headerGradient 8s ease infinite;
+
 position:sticky;
 top:0;
 z-index:1000;
+
+box-shadow:0 5px 20px rgba(0,0,0,0.2);
 }
 
-/* ===== LOGO ===== */
+@keyframes headerGradient{
+
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+
+}
+
+/* =========================
+   LOGO
+========================= */
 
 .logo{
-font-size:24px;
-font-weight:bold;
+display:flex;
+align-items:center;
+gap:15px;
+text-decoration:none;
+}
+
+.logo img{
+height:55px;
+border-radius:10px;
+transition:0.3s;
+}
+
+.logo img:hover{
+transform:scale(1.1);
+}
+
+/* WEBSITE NAME */
+
+.logo span{
+font-size:24px;   /* INCREASED SIZE */
+font-weight:700;
+color:white;
 letter-spacing:1px;
 }
 
-/* ===== NAVIGATION ===== */
+/* =========================
+   NAVIGATION
+========================= */
 
 .nav{
 display:flex;
@@ -29,142 +70,144 @@ gap:25px;
 }
 
 .nav a{
+position:relative;
 text-decoration:none;
 color:white;
 font-weight:500;
-transition:0.3s;
-}
-
-.nav a:hover{
-opacity:0.7;
-}
-
-/* ===== DARK MODE BUTTON ===== */
-
-.dark-btn{
-background:white;
-border:none;
-padding:6px 12px;
-border-radius:20px;
-cursor:pointer;
 font-size:16px;
 transition:0.3s;
 }
 
-.dark-btn:hover{
-transform:scale(1.1);
+.nav a::after{
+content:"";
+position:absolute;
+left:0;
+bottom:-5px;
+width:0;
+height:2px;
+background:white;
+transition:0.3s;
 }
 
-/* ===== PROFILE MENU ===== */
+.nav a:hover::after{
+width:100%;
+}
+
+.nav a:hover{
+transform:translateY(-2px);
+}
+
+/* =========================
+   DARK MODE BUTTON
+========================= */
+
+.dark-btn{
+border:none;
+background:rgba(255,255,255,0.2);
+color:white;
+
+padding:6px 10px;
+border-radius:6px;
+
+cursor:pointer;
+font-size:18px;
+}
+
+/* =========================
+   PROFILE MENU
+========================= */
 
 .profile-menu{
 position:relative;
 }
 
-/* ===== PROFILE ICON ===== */
-
 .profile-icon{
 font-size:22px;
 cursor:pointer;
-transition:0.2s;
+padding:6px;
+border-radius:50%;
 }
 
 .profile-icon:hover{
-transform:scale(1.2);
+background:rgba(178, 231, 7, 0.3);
 }
 
-/* ===== DROPDOWN ===== */
+/* DROPDOWN */
 
 .dropdown{
 position:absolute;
 top:40px;
 right:0;
-background:white;
-color:black;
-border-radius:8px;
-padding:10px 0;
-min-width:140px;
-box-shadow:0 4px 12px rgba(0,0,0,0.2);
-display:flex;
-flex-direction:column;
+
+background:rgb(244, 7, 7);
+border-radius:10px;
+
+box-shadow:0 10px 30px rgba(0,0,0,0.25);
+
+overflow:hidden;
+min-width:150px;
 }
 
-/* dropdown links */
+.dropdown a,
+.dropdown button{
+display:block;
+width:100%;
+padding:12px 15px;
 
-.dropdown a{
-padding:8px 15px;
-text-decoration:none;
-color:black;
+border:none;
+background:none;
+
+text-align:left;
+cursor:pointer;
 font-size:14px;
 }
 
-.dropdown a:hover{
-background:#f2f2f2;
-}
-
-/* logout button */
-
-.dropdown button{
-margin:5px 10px;
-padding:6px;
-border:none;
-background:#ef4444;
-color:white;
-border-radius:5px;
-cursor:pointer;
-}
-
+.dropdown a:hover,
 .dropdown button:hover{
-background:#dc2626;
+background:#2f0def;
 }
 
-/* ===== DARK MODE ===== */
-
-body.dark-mode{
-background:#121212;
-color:white;
-}
+/* =========================
+   DARK MODE
+========================= */
 
 body.dark-mode .header{
-background:#1f1f1f;
-}
-
-body.dark-mode .nav a{
-color:white;
+background:linear-gradient(270deg,#0f172a,#1e293b,#020617);
 }
 
 body.dark-mode .dropdown{
-background:#2a2a2a;
+background:#1e293b;
 color:white;
 }
 
-body.dark-mode .dropdown a{
+body.dark-mode .dropdown a,
+body.dark-mode .dropdown button{
 color:white;
 }
 
-body.dark-mode .dropdown a:hover{
-background:#333;
-}
+/* =========================
+   MOBILE
+========================= */
 
-/* ===== MOBILE RESPONSIVE ===== */
-
-@media (max-width:768px){
+@media(max-width:600px){
 
 .header{
-padding:15px 20px;
+flex-direction:column;
+align-items:flex-start;
+gap:10px;
 }
 
 .nav{
-gap:15px;
+flex-wrap:wrap;
+gap:12px;
 }
 
-.logo{
-font-size:20px;
+.logo img{
+height:40px;
 }
 
-.dark-btn{
-padding:5px 10px;
-font-size:14px;
+.logo span{
+font-size:26px;
 }
 
 }

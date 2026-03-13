@@ -58,7 +58,7 @@ localStorage.setItem("token",data.token);
 
 login(data.user);
 
-toast.success("Login Successfully");   // success message
+toast.success("Login Successfully 🎉");
 
 navigate("/");
 
