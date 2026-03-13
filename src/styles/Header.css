@@ -21,6 +21,8 @@ z-index:1000;
 box-shadow:0 5px 20px rgba(0,0,0,0.2);
 }
 
+/* gradient animation */
+
 @keyframes headerGradient{
 
 0%{background-position:0% 50%;}
@@ -36,12 +38,12 @@ box-shadow:0 5px 20px rgba(0,0,0,0.2);
 .logo{
 display:flex;
 align-items:center;
-gap:15px;
+gap:12px;
 text-decoration:none;
 }
 
 .logo img{
-height:55px;
+height:50px;
 border-radius:10px;
 transition:0.3s;
 }
@@ -50,10 +52,8 @@ transition:0.3s;
 transform:scale(1.1);
 }
 
-/* WEBSITE NAME */
-
 .logo span{
-font-size:24px;   /* INCREASED SIZE */
+font-size:32px;
 font-weight:700;
 color:white;
 letter-spacing:1px;
@@ -77,6 +77,8 @@ font-weight:500;
 font-size:16px;
 transition:0.3s;
 }
+
+/* underline animation */
 
 .nav a::after{
 content:"";
@@ -111,6 +113,13 @@ border-radius:6px;
 
 cursor:pointer;
 font-size:18px;
+
+transition:0.3s;
+}
+
+.dark-btn:hover{
+background:rgba(255,255,255,0.4);
+transform:rotate(15deg);
 }
 
 /* =========================
@@ -126,32 +135,50 @@ font-size:22px;
 cursor:pointer;
 padding:6px;
 border-radius:50%;
+transition:0.3s;
 }
 
 .profile-icon:hover{
-background:rgba(178, 231, 7, 0.3);
+background:rgba(255,255,255,0.3);
 }
 
-/* DROPDOWN */
+/* dropdown */
 
 .dropdown{
 position:absolute;
 top:40px;
 right:0;
 
-background:rgb(244, 7, 7);
+background:rgb(250, 15, 15);
 border-radius:10px;
 
 box-shadow:0 10px 30px rgba(0,0,0,0.25);
 
 overflow:hidden;
 min-width:150px;
+
+animation:dropdownFade 0.3s ease;
+}
+
+@keyframes dropdownFade{
+
+from{
+opacity:0;
+transform:translateY(-10px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
 }
 
 .dropdown a,
 .dropdown button{
 display:block;
 width:100%;
+
 padding:12px 15px;
 
 border:none;
@@ -159,12 +186,24 @@ background:none;
 
 text-align:left;
 cursor:pointer;
+
 font-size:14px;
 }
 
 .dropdown a:hover,
 .dropdown button:hover{
-background:#2f0def;
+background:#2106cb;
+}
+
+/* =========================
+   HAMBURGER MENU
+========================= */
+
+.hamburger{
+display:none;
+font-size:28px;
+color:white;
+cursor:pointer;
 }
 
 /* =========================
@@ -185,29 +224,75 @@ body.dark-mode .dropdown button{
 color:white;
 }
 
+body.dark-mode .dropdown a:hover,
+body.dark-mode .dropdown button:hover{
+background:#334155;
+}
+
 /* =========================
-   MOBILE
+   TABLET
 ========================= */
 
-@media(max-width:600px){
+@media(max-width:900px){
 
 .header{
-flex-direction:column;
-align-items:flex-start;
-gap:10px;
+padding:15px 20px;
 }
 
 .nav{
-flex-wrap:wrap;
-gap:12px;
-}
-
-.logo img{
-height:40px;
+gap:15px;
 }
 
 .logo span{
 font-size:26px;
+}
+
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:768px){
+
+.hamburger{
+display:block;
+}
+
+.nav{
+position:absolute;
+top:80px;
+left:0;
+
+width:100%;
+background:#111;
+
+flex-direction:column;
+align-items:flex-start;
+
+padding:20px;
+gap:15px;
+
+transform:translateY(-200%);
+transition:0.4s;
+}
+
+/* active menu */
+
+.nav.active{
+transform:translateY(0);
+}
+
+.nav a{
+font-size:18px;
+}
+
+.logo span{
+font-size:24px;
+}
+
+.dark-btn{
+font-size:16px;
 }
 
 }

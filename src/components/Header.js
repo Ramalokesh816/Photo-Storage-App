@@ -10,6 +10,7 @@ const { user, logout } = useAuth();
 
 const [dropdownOpen,setDropdownOpen] = useState(false);
 const [darkMode,setDarkMode] = useState(false);
+const [menuOpen,setMenuOpen] = useState(false);
 
 /* =========================
    DARK MODE
@@ -52,17 +53,26 @@ return(
 
 </Link>
 
+{/* HAMBURGER BUTTON */}
+
+<div 
+className="hamburger"
+onClick={()=>setMenuOpen(!menuOpen)}
+>
+☰
+</div>
+
 {/* NAVIGATION */}
 
-<nav className="nav">
+<nav className={menuOpen ? "nav active" : "nav"}>
 
-<Link to="/">Home</Link>
+<Link to="/" onClick={()=>setMenuOpen(false)}>Home</Link>
 
-{user && <Link to="/gallery">Gallery</Link>}
-{user && <Link to="/upload">Upload</Link>}
-{user && <Link to="/dashboard">Dashboard</Link>}
-{!user && <Link to="/login">Login</Link>}
-{!user && <Link to="/register">Register</Link>}
+{user && <Link to="/gallery" onClick={()=>setMenuOpen(false)}>Gallery</Link>}
+{user && <Link to="/upload" onClick={()=>setMenuOpen(false)}>Upload</Link>}
+{user && <Link to="/dashboard" onClick={()=>setMenuOpen(false)}>Dashboard</Link>}
+{!user && <Link to="/login" onClick={()=>setMenuOpen(false)}>Login</Link>}
+{!user && <Link to="/register" onClick={()=>setMenuOpen(false)}>Register</Link>}
 
 {/* DARK MODE BUTTON */}
 

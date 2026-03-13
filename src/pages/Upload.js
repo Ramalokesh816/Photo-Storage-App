@@ -22,7 +22,9 @@ const [album,setAlbum] = useState("General");
 const [loading,setLoading] = useState(false);
 const [progress,setProgress] = useState(0);
 
-/* LOAD SAVED FILES */
+/* =========================
+   LOAD SAVED FILES
+========================= */
 
 useEffect(()=>{
 
@@ -34,33 +36,30 @@ setFiles(JSON.parse(saved));
 
 },[]);
 
-/* SAVE FILES */
+/* =========================
+   SAVE FILES
+========================= */
 
 useEffect(()=>{
 localStorage.setItem("uploadFiles",JSON.stringify(files));
 },[files]);
 
-/* DROPZONE */
+/* =========================
+   DROPZONE
+========================= */
 
 const onDrop = (acceptedFiles)=>{
 
 acceptedFiles.forEach(file=>{
 
-const reader = new FileReader();
-
-reader.onloadend = ()=>{
-
 const newFile = {
 id:Math.random().toString(),
+file:file,
 fileType:file.type,
-preview:reader.result
+preview:URL.createObjectURL(file)
 };
 
 setFiles(prev=>[...prev,newFile]);
-
-};
-
-reader.readAsDataURL(file);
 
 });
 
@@ -74,7 +73,9 @@ accept:{
 onDrop
 });
 
-/* REMOVE FILE */
+/* =========================
+   REMOVE FILE
+========================= */
 
 const removeFile = (id)=>{
 
@@ -82,7 +83,9 @@ setFiles(prev=>prev.filter(file=>file.id !== id));
 
 };
 
-/* DRAG REORDER */
+/* =========================
+   DRAG REORDER
+========================= */
 
 const handleDragEnd = (event)=>{
 
@@ -101,7 +104,9 @@ setFiles(arrayMove(files,oldIndex,newIndex));
 
 };
 
-/* UPLOAD */
+/* =========================
+   UPLOAD FILES
+========================= */
 
 const uploadAll = async ()=>{
 
@@ -119,16 +124,19 @@ const token = localStorage.getItem("token");
 
 for(let i=0;i<files.length;i++){
 
-await fetch("https://photo-storage-app.onrender.com/api/upload",{
+const formData = new FormData();
+
+formData.append("file",files[i].file);
+formData.append("album",album);
+
+await fetch(
+"https://photo-storage-app.onrender.com/api/upload",
+{
 method:"POST",
 headers:{
-"Content-Type":"application/json",
 Authorization:`Bearer ${token}`
 },
-body:JSON.stringify({
-imageUrl:files[i].preview,
-album
-})
+body:formData
 });
 
 const percent = Math.round(((i+1)/files.length)*100);
@@ -136,7 +144,7 @@ setProgress(percent);
 
 }
 
-toast.success("Photo uploaded successfully 📷");
+toast.success("Media uploaded successfully 🎉");
 
 setFiles([]);
 localStorage.removeItem("uploadFiles");
@@ -144,7 +152,7 @@ localStorage.removeItem("uploadFiles");
 }catch(error){
 
 console.log(error);
-alert("Upload failed");
+toast.error("Upload failed");
 
 }
 
@@ -152,7 +160,9 @@ setLoading(false);
 
 };
 
-/* SORTABLE ITEM */
+/* =========================
+   SORTABLE PREVIEW ITEM
+========================= */
 
 function SortableItem({file}){
 
@@ -207,6 +217,10 @@ Remove
 
 }
 
+/* =========================
+   UI
+========================= */
+
 return(
 
 <div>
@@ -217,6 +231,8 @@ return(
 
 <h2>Upload Media</h2>
 
+{/* DROP AREA */}
+
 <div {...getRootProps()} className="dropzone">
 
 <input {...getInputProps()} />
@@ -224,6 +240,8 @@ return(
 <p>Drag & Drop media or click to select</p>
 
 </div>
+
+{/* DRAG SORT */}
 
 <DndContext
 collisionDetection={closestCenter}
@@ -247,6 +265,8 @@ strategy={verticalListSortingStrategy}
 
 </DndContext>
 
+{/* PROGRESS BAR */}
+
 {loading && (
 
 <div className="progress-wrapper">
@@ -262,6 +282,8 @@ style={{width:`${progress}%`}}
 
 )}
 
+{/* ALBUM SELECT */}
+
 <select
 value={album}
 onChange={(e)=>setAlbum(e.target.value)}
@@ -275,6 +297,8 @@ className="album-select"
 <option value="Work">Work</option>
 
 </select>
+
+{/* UPLOAD BUTTON */}
 
 <button
 className="upload-btn"

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 
 const {
 uploadPhoto,
@@ -9,7 +10,10 @@ deletePhoto
 
 const authMiddleware = require("../middleware/authMiddleware");
 
-router.post("/upload", authMiddleware, uploadPhoto);
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+router.post("/upload", authMiddleware, upload.single("file"), uploadPhoto);
 
 router.get("/photos", authMiddleware, getPhotos);
 

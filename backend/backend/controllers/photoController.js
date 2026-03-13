@@ -1,31 +1,60 @@
 const Photo = require("../models/Photo");
 const cloudinary = require("../config/cloudinary");
+const streamifier = require("streamifier");
 
+/* ======================
+   UPLOAD PHOTO / VIDEO
+====================== */
 
 exports.uploadPhoto = async (req,res)=>{
 
 try{
 
-const result = await cloudinary.uploader.upload(
-req.body.imageUrl,
-{resource_type:"auto"}
+if(!req.file){
+return res.status(400).json({message:"No file uploaded"});
+}
+
+const album = req.body.album;
+
+/* Upload buffer to Cloudinary */
+
+const streamUpload = () => {
+return new Promise((resolve,reject)=>{
+
+const stream = cloudinary.uploader.upload_stream(
+{ resource_type:"auto" },
+(error,result)=>{
+
+if(result) resolve(result);
+else reject(error);
+
+}
 );
+
+streamifier.createReadStream(req.file.buffer).pipe(stream);
+
+});
+};
+
+const result = await streamUpload();
+
+/* Save in MongoDB */
 
 const photo = new Photo({
 
 title:"Media",
 
-imageUrl:result.secure_url,
+imageUrl: result.secure_url,
 
-publicId:result.public_id,
+publicId: result.public_id,
 
-album:req.body.album,
+album: album,
 
-mediaType:result.resource_type === "video" ? "video" : "image",
+mediaType: result.resource_type === "video" ? "video" : "image",
 
-size:result.bytes,   // ⭐ cloudinary file size
+size: result.bytes,
 
-userId:req.user.id
+userId: req.user.id
 
 });
 
@@ -36,11 +65,16 @@ res.json(photo);
 }catch(error){
 
 console.log(error);
-res.status(500).json(error);
+res.status(500).json({message:"Upload failed"});
 
 }
 
 };
+
+/* ======================
+   GET PHOTOS
+====================== */
+
 exports.getPhotos = async (req,res)=>{
 
 try{
@@ -49,9 +83,7 @@ if(!req.user){
 return res.status(401).json({message:"Unauthorized"});
 }
 
-const filter = {
-userId:req.user.id
-};
+const filter = { userId:req.user.id };
 
 if(req.query.album){
 filter.album = req.query.album;
@@ -65,13 +97,16 @@ res.json(photos);
 
 console.log("GET PHOTOS ERROR:",error);
 
-res.status(500).json({
-message:"Failed to fetch photos"
-});
+res.status(500).json({message:"Failed to fetch photos"});
 
 }
 
 };
+
+/* ======================
+   DELETE PHOTO
+====================== */
+
 exports.deletePhoto = async (req,res)=>{
 
 try{
@@ -95,8 +130,7 @@ res.json({message:"Photo deleted successfully"});
 }catch(error){
 
 console.log(error);
-
-res.status(500).json(error);
+res.status(500).json({message:"Delete failed"});
 
 }
 

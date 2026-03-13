@@ -4,37 +4,36 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles/Gallery.css";
 
-function Gallery() {
+function Gallery(){
 
 const [photos,setPhotos] = useState([]);
-const [selectedImage,setSelectedImage] = useState(null);
+const [selectedMedia,setSelectedMedia] = useState(null);
+const [selectedType,setSelectedType] = useState(null);
 const [selectedIndex,setSelectedIndex] = useState(null);
 const [selectedAlbum,setSelectedAlbum] = useState("All");
 const [loading,setLoading] = useState(true);
 
 /* ================================
-   FETCH PHOTOS FROM BACKEND
+   FETCH PHOTOS
 ================================ */
 
 useEffect(()=>{
 fetchPhotos();
 },[]);
 
-const fetchPhotos = async () => {
+const fetchPhotos = async()=>{
 
 try{
 
 const token = localStorage.getItem("token");
 
-const res = await fetch("https://photo-storage-app.onrender.com/api/photos",{
+const res = await fetch(
+"https://photo-storage-app.onrender.com/api/photos",
+{
 headers:{
 Authorization:`Bearer ${token}`
 }
 });
-
-if(!res.ok){
-throw new Error("Failed to fetch photos");
-}
 
 const data = await res.json();
 
@@ -61,7 +60,9 @@ try{
 
 const token = localStorage.getItem("token");
 
-const res = await fetch(`https://photo-storage-app.onrender.com/api/photos/${id}`,{
+const res = await fetch(
+`https://photo-storage-app.onrender.com/api/photos/${id}`,
+{
 method:"DELETE",
 headers:{
 Authorization:`Bearer ${token}`
@@ -72,13 +73,12 @@ if(!res.ok){
 throw new Error("Delete failed");
 }
 
-setPhotos(prev => prev.filter(photo => photo._id !== id));
+setPhotos(prev=>prev.filter(photo=>photo._id !== id));
 
-toast.success("Photo deleted 🗑");
+toast.success("Photo deleted");
 
 }catch(error){
 
-console.log(error);
 toast.error("Delete failed");
 
 }
@@ -97,39 +97,48 @@ photo.album?.toLowerCase() === selectedAlbum.toLowerCase()
 );
 
 /* ================================
-   IMAGE NAVIGATION
+   OPEN MEDIA
 ================================ */
 
-const openImage = (url,index)=>{
-setSelectedImage(url);
+const openMedia = (url,type,index)=>{
+setSelectedMedia(url);
+setSelectedType(type);
 setSelectedIndex(index);
 };
 
-const nextImage = (e)=>{
+/* ================================
+   NEXT MEDIA
+================================ */
+
+const nextMedia = (e)=>{
 e.stopPropagation();
 
-if(selectedIndex === null) return;
-
-const nextIndex = (selectedIndex + 1) % filteredPhotos.length;
+const nextIndex =
+(selectedIndex + 1) % filteredPhotos.length;
 
 setSelectedIndex(nextIndex);
-setSelectedImage(filteredPhotos[nextIndex].imageUrl);
-};
-
-const prevImage = (e)=>{
-e.stopPropagation();
-
-if(selectedIndex === null) return;
-
-const prevIndex =
-(selectedIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
-
-setSelectedIndex(prevIndex);
-setSelectedImage(filteredPhotos[prevIndex].imageUrl);
+setSelectedMedia(filteredPhotos[nextIndex].imageUrl);
+setSelectedType(filteredPhotos[nextIndex].mediaType);
 };
 
 /* ================================
-   LOADING SCREEN
+   PREVIOUS MEDIA
+================================ */
+
+const prevMedia = (e)=>{
+e.stopPropagation();
+
+const prevIndex =
+(selectedIndex - 1 + filteredPhotos.length) %
+filteredPhotos.length;
+
+setSelectedIndex(prevIndex);
+setSelectedMedia(filteredPhotos[prevIndex].imageUrl);
+setSelectedType(filteredPhotos[prevIndex].mediaType);
+};
+
+/* ================================
+   LOADING
 ================================ */
 
 if(loading){
@@ -137,7 +146,7 @@ if(loading){
 return(
 <div>
 <Header/>
-<div style={{textAlign:"center",marginTop:"120px"}}>
+<div className="loading">
 <h2>Loading gallery...</h2>
 </div>
 <Footer/>
@@ -152,7 +161,7 @@ return(
 
 return(
 
-<div>
+<div className="gallery-page">
 
 <Header/>
 
@@ -184,14 +193,18 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 ) : (
 
 filteredPhotos.map((photo,index)=>(
+
 <div className="photo-card" key={photo._id}>
 
 {/* VIDEO */}
 
 {photo.mediaType === "video" ? (
 
-<video className="media-item" controls>
-<source src={photo.imageUrl} />
+<video
+className="media-item"
+onClick={()=>openMedia(photo.imageUrl,"video",index)}
+>
+<source src={photo.imageUrl}/>
 </video>
 
 ) : (
@@ -200,7 +213,7 @@ filteredPhotos.map((photo,index)=>(
 className="media-item"
 src={photo.imageUrl}
 alt="gallery"
-onClick={()=>openImage(photo.imageUrl,index)}
+onClick={()=>openMedia(photo.imageUrl,"image",index)}
 />
 
 )}
@@ -213,6 +226,7 @@ Delete
 </button>
 
 </div>
+
 ))
 
 )}
@@ -221,22 +235,44 @@ Delete
 
 </div>
 
-{/* FULLSCREEN IMAGE */}
+{/* =========================
+   MODAL VIEW
+========================= */}
 
-{selectedImage && (
+{selectedMedia && (
 
 <div
 className="modal"
-onClick={()=>setSelectedImage(null)}
+onClick={()=>setSelectedMedia(null)}
 >
 
-<button className="arrow left" onClick={prevImage}>
+<button className="arrow left" onClick={prevMedia}>
 ❮
 </button>
 
-<img src={selectedImage} alt="large"/>
+{selectedType === "video" ? (
 
-<button className="arrow right" onClick={nextImage}>
+<video
+controls
+autoPlay
+className="modal-video"
+onClick={(e)=>e.stopPropagation()}
+>
+<source src={selectedMedia}/>
+</video>
+
+) : (
+
+<img
+src={selectedMedia}
+alt="large"
+className="modal-image"
+onClick={(e)=>e.stopPropagation()}
+/>
+
+)}
+
+<button className="arrow right" onClick={nextMedia}>
 ❯
 </button>
 
