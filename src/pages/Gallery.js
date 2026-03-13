@@ -13,6 +13,12 @@ const [selectedIndex,setSelectedIndex] = useState(null);
 const [selectedAlbum,setSelectedAlbum] = useState("All");
 const [loading,setLoading] = useState(true);
 
+/* NEW STATES */
+
+const [zoom,setZoom] = useState(1);
+const [touchStart,setTouchStart] = useState(null);
+const [touchEnd,setTouchEnd] = useState(null);
+
 /* ================================
    FETCH PHOTOS
 ================================ */
@@ -104,6 +110,7 @@ const openMedia = (url,type,index)=>{
 setSelectedMedia(url);
 setSelectedType(type);
 setSelectedIndex(index);
+setZoom(1);
 };
 
 /* ================================
@@ -119,6 +126,7 @@ const nextIndex =
 setSelectedIndex(nextIndex);
 setSelectedMedia(filteredPhotos[nextIndex].imageUrl);
 setSelectedType(filteredPhotos[nextIndex].mediaType);
+setZoom(1);
 };
 
 /* ================================
@@ -135,6 +143,56 @@ filteredPhotos.length;
 setSelectedIndex(prevIndex);
 setSelectedMedia(filteredPhotos[prevIndex].imageUrl);
 setSelectedType(filteredPhotos[prevIndex].mediaType);
+setZoom(1);
+};
+
+/* ================================
+   IMAGE ZOOM
+================================ */
+
+const handleZoom = (e)=>{
+
+if(selectedType !== "image") return;
+
+e.preventDefault();
+
+if(e.deltaY < 0){
+setZoom(prev => Math.min(prev + 0.2,3));
+}else{
+setZoom(prev => Math.max(prev - 0.2,1));
+}
+
+};
+
+/* ================================
+   MOBILE SWIPE
+================================ */
+
+const handleTouchStart = (e)=>{
+setTouchStart(e.targetTouches[0].clientX);
+};
+
+const handleTouchMove = (e)=>{
+setTouchEnd(e.targetTouches[0].clientX);
+};
+
+const handleTouchEnd = ()=>{
+
+if(!touchStart || !touchEnd) return;
+
+const distance = touchStart - touchEnd;
+
+if(distance > 50){
+nextMedia({stopPropagation:()=>{}});
+}
+
+if(distance < -50){
+prevMedia({stopPropagation:()=>{}});
+}
+
+setTouchStart(null);
+setTouchEnd(null);
+
 };
 
 /* ================================
@@ -196,8 +254,6 @@ filteredPhotos.map((photo,index)=>(
 
 <div className="photo-card" key={photo._id}>
 
-{/* VIDEO */}
-
 {photo.mediaType === "video" ? (
 
 <video
@@ -244,6 +300,10 @@ Delete
 <div
 className="modal"
 onClick={()=>setSelectedMedia(null)}
+onWheel={handleZoom}
+onTouchStart={handleTouchStart}
+onTouchMove={handleTouchMove}
+onTouchEnd={handleTouchEnd}
 >
 
 <button className="arrow left" onClick={prevMedia}>
@@ -268,6 +328,10 @@ onClick={(e)=>e.stopPropagation()}
 src={selectedMedia}
 alt="large"
 className="modal-image"
+style={{
+transform:`scale(${zoom})`,
+transition:"transform 0.2s"
+}}
 onClick={(e)=>e.stopPropagation()}
 />
 
