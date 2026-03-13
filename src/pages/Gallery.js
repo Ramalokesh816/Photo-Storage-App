@@ -19,7 +19,7 @@ const [lastTap,setLastTap] = useState(0);
 const [touchStart,setTouchStart] = useState(null);
 const [touchEnd,setTouchEnd] = useState(null);
 
-/* ================= FETCH ================= */
+/* ================= FETCH PHOTOS ================= */
 
 useEffect(()=>{
 fetchPhotos();
@@ -52,7 +52,7 @@ setLoading(false);
 
 };
 
-/* ================= DELETE ================= */
+/* ================= DELETE PHOTO ================= */
 
 const deletePhoto = async(id)=>{
 
@@ -90,7 +90,7 @@ selectedAlbum === "All"
 photo.album?.toLowerCase() === selectedAlbum.toLowerCase()
 );
 
-/* ================= OPEN ================= */
+/* ================= OPEN MEDIA ================= */
 
 const openMedia = (url,type,index)=>{
 setSelectedMedia(url);
@@ -99,7 +99,7 @@ setSelectedIndex(index);
 setZoom(1);
 };
 
-/* ================= NEXT ================= */
+/* ================= NEXT MEDIA ================= */
 
 const nextMedia = (e)=>{
 e.stopPropagation();
@@ -110,10 +110,9 @@ const nextIndex =
 setSelectedIndex(nextIndex);
 setSelectedMedia(filteredPhotos[nextIndex].imageUrl);
 setSelectedType(filteredPhotos[nextIndex].mediaType);
-setZoom(1);
 };
 
-/* ================= PREVIOUS ================= */
+/* ================= PREVIOUS MEDIA ================= */
 
 const prevMedia = (e)=>{
 e.stopPropagation();
@@ -125,7 +124,6 @@ filteredPhotos.length;
 setSelectedIndex(prevIndex);
 setSelectedMedia(filteredPhotos[prevIndex].imageUrl);
 setSelectedType(filteredPhotos[prevIndex].mediaType);
-setZoom(1);
 };
 
 /* ================= ZOOM ================= */
@@ -219,13 +217,7 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 
 <div className="gallery-grid">
 
-{filteredPhotos.length === 0 ? (
-
-<p>No photos uploaded yet</p>
-
-) : (
-
-filteredPhotos.map((photo,index)=>(
+{filteredPhotos.map((photo,index)=>(
 
 <div className="photo-card" key={photo._id}>
 
@@ -258,9 +250,7 @@ Delete
 
 </div>
 
-))
-
-)}
+))}
 
 </div>
 
@@ -300,7 +290,7 @@ alt="large"
 className="modal-image"
 style={{
 transform:`scale(${zoom})`,
-transition:"transform .25s ease"
+transition:"transform .25s"
 }}
 onClick={(e)=>e.stopPropagation()}
 onDoubleClick={toggleZoom}
