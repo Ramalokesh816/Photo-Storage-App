@@ -27,18 +27,21 @@ return new Promise((resolve,reject)=>{
 {
   resource_type: "video",
 
-  // ensure mobile compatible codec
+  // mobile friendly codec
   video_codec: "h264",
 
-  // generate streaming version
+  // generate HLS streaming version
   eager: [
     { streaming_profile: "full_hd", format: "m3u8" }
   ],
 
-  eager_async: true
+  // IMPORTANT: process video in background
+  eager_async: true,
+
+  // optional notification url (can leave empty)
+  eager_notification_url: "https://example.com"
 },
 (error,result)=>{
-
 if(result){
 resolve(result);
 }else{
