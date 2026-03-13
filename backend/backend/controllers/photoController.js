@@ -24,16 +24,21 @@ return new Promise((resolve,reject)=>{
 
 const stream = cloudinary.uploader.upload_stream(
 {
-resource_type: "auto",
+resource_type: "video",
 
-// mobile friendly format
+// mobile compatible
 format: "mp4",
 
-// automatic compression
+// progressive streaming
 quality: "auto",
+video_codec: "auto",
 
-// better compatibility
-video_codec: "auto"
+// reduce buffering
+eager: [
+{ width: 1280, crop: "limit", quality: "auto", format: "mp4" }
+],
+
+eager_async: true
 },
 (error,result)=>{
 

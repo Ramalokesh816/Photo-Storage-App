@@ -18,9 +18,7 @@ const [touchStart,setTouchStart] = useState(null);
 const [touchEnd,setTouchEnd] = useState(null);
 const [lastTap,setLastTap] = useState(0);
 
-/* ================================
-   FETCH PHOTOS
-================================ */
+/* ================= FETCH ================= */
 
 useEffect(()=>{
 fetchPhotos();
@@ -35,29 +33,21 @@ const token = localStorage.getItem("token");
 const res = await fetch(
 "https://photo-storage-app.onrender.com/api/photos",
 {
-headers:{
-Authorization:`Bearer ${token}`
-}
+headers:{ Authorization:`Bearer ${token}` }
 });
 
 const data = await res.json();
-
 setPhotos(data);
 
-}catch(error){
-
-console.log(error);
+}catch{
 toast.error("Failed to load gallery");
-
 }
 
 setLoading(false);
 
 };
 
-/* ================================
-   DELETE PHOTO
-================================ */
+/* ================= DELETE ================= */
 
 const deletePhoto = async(id)=>{
 
@@ -65,24 +55,18 @@ try{
 
 const token = localStorage.getItem("token");
 
-const res = await fetch(
+await fetch(
 `https://photo-storage-app.onrender.com/api/photos/${id}`,
 {
 method:"DELETE",
-headers:{
-Authorization:`Bearer ${token}`
-}
+headers:{ Authorization:`Bearer ${token}` }
 });
 
-if(!res.ok){
-throw new Error("Delete failed");
-}
-
-setPhotos(prev=>prev.filter(photo=>photo._id !== id));
+setPhotos(prev=>prev.filter(p=>p._id !== id));
 
 toast.success("Photo deleted");
 
-}catch(error){
+}catch{
 
 toast.error("Delete failed");
 
@@ -90,9 +74,7 @@ toast.error("Delete failed");
 
 };
 
-/* ================================
-   FILTER ALBUM
-================================ */
+/* ================= FILTER ================= */
 
 const filteredPhotos =
 selectedAlbum === "All"
@@ -101,9 +83,7 @@ selectedAlbum === "All"
 photo.album?.toLowerCase() === selectedAlbum.toLowerCase()
 );
 
-/* ================================
-   OPEN MEDIA
-================================ */
+/* ================= OPEN ================= */
 
 const openMedia = (url,type,index)=>{
 setSelectedMedia(url);
@@ -112,9 +92,7 @@ setSelectedIndex(index);
 setZoom(1);
 };
 
-/* ================================
-   NEXT MEDIA
-================================ */
+/* ================= NAVIGATION ================= */
 
 const nextMedia = (e)=>{
 e.stopPropagation();
@@ -125,12 +103,7 @@ const nextIndex =
 setSelectedIndex(nextIndex);
 setSelectedMedia(filteredPhotos[nextIndex].imageUrl);
 setSelectedType(filteredPhotos[nextIndex].mediaType);
-setZoom(1);
 };
-
-/* ================================
-   PREVIOUS MEDIA
-================================ */
 
 const prevMedia = (e)=>{
 e.stopPropagation();
@@ -142,18 +115,13 @@ filteredPhotos.length;
 setSelectedIndex(prevIndex);
 setSelectedMedia(filteredPhotos[prevIndex].imageUrl);
 setSelectedType(filteredPhotos[prevIndex].mediaType);
-setZoom(1);
 };
 
-/* ================================
-   IMAGE ZOOM (Scroll)
-================================ */
+/* ================= ZOOM ================= */
 
 const handleZoom = (e)=>{
 
 if(selectedType !== "image") return;
-
-e.preventDefault();
 
 if(e.deltaY < 0){
 setZoom(prev => Math.min(prev + 0.2,3));
@@ -163,21 +131,18 @@ setZoom(prev => Math.max(prev - 0.2,1));
 
 };
 
-/* ================================
-   DOUBLE CLICK / TAP ZOOM
-================================ */
-
 const toggleZoom = ()=>{
 if(selectedType !== "image") return;
 setZoom(prev => prev === 1 ? 2 : 1);
 };
 
+/* ================= DOUBLE TAP ================= */
+
 const handleDoubleTap = ()=>{
 
 const now = Date.now();
-const DOUBLE_TAP_DELAY = 300;
 
-if(lastTap && now - lastTap < DOUBLE_TAP_DELAY){
+if(lastTap && now - lastTap < 300){
 toggleZoom();
 }
 
@@ -185,17 +150,15 @@ setLastTap(now);
 
 };
 
-/* ================================
-   MOBILE SWIPE
-================================ */
+/* ================= MOBILE SWIPE ================= */
 
 const handleTouchStart = (e)=>{
-setTouchStart(e.targetTouches[0].clientX);
+setTouchStart(e.touches[0].clientX);
 handleDoubleTap();
 };
 
 const handleTouchMove = (e)=>{
-setTouchEnd(e.targetTouches[0].clientX);
+setTouchEnd(e.touches[0].clientX);
 };
 
 const handleTouchEnd = ()=>{
@@ -204,22 +167,27 @@ if(!touchStart || !touchEnd) return;
 
 const distance = touchStart - touchEnd;
 
-if(distance > 50){
-nextMedia({stopPropagation:()=>{}});
-}
-
-if(distance < -50){
-prevMedia({stopPropagation:()=>{}});
-}
+if(distance > 50) nextMedia({stopPropagation:()=>{}});
+if(distance < -50) prevMedia({stopPropagation:()=>{}});
 
 setTouchStart(null);
 setTouchEnd(null);
 
 };
 
-/* ================================
-   LOADING
-================================ */
+/* ================= MODAL SCROLL LOCK ================= */
+
+useEffect(()=>{
+
+if(selectedMedia){
+document.body.style.overflow="hidden";
+}else{
+document.body.style.overflow="auto";
+}
+
+},[selectedMedia]);
+
+/* ================= LOADING ================= */
 
 if(loading){
 
@@ -235,9 +203,7 @@ return(
 
 }
 
-/* ================================
-   UI
-================================ */
+/* ================= UI ================= */
 
 return(
 
@@ -266,13 +232,7 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 
 <div className="gallery-grid">
 
-{filteredPhotos.length === 0 ? (
-
-<p>No photos uploaded yet</p>
-
-) : (
-
-filteredPhotos.map((photo,index)=>(
+{filteredPhotos.map((photo,index)=>(
 
 <div className="photo-card" key={photo._id}>
 
@@ -282,7 +242,7 @@ filteredPhotos.map((photo,index)=>(
 className="media-item"
 onClick={()=>openMedia(photo.imageUrl,"video",index)}
 >
-<source src={photo.imageUrl}/>
+<source src={`${photo.imageUrl}?f_auto&q_auto`} />
 </video>
 
 ) : (
@@ -305,17 +265,13 @@ Delete
 
 </div>
 
-))
-
-)}
+))}
 
 </div>
 
 </div>
 
-{/* =========================
-   MODAL VIEW
-========================= */}
+{/* ================= MODAL ================= */}
 
 {selectedMedia && (
 
@@ -328,20 +284,18 @@ onTouchMove={handleTouchMove}
 onTouchEnd={handleTouchEnd}
 >
 
-<button className="arrow left" onClick={prevMedia}>
-❮
-</button>
+<button className="arrow left" onClick={prevMedia}>❮</button>
 
 {selectedType === "video" ? (
 
 <video
 controls
 playsInline
-preload="auto"
+preload="metadata"
 className="modal-video"
 onClick={(e)=>e.stopPropagation()}
 >
-<source src={selectedMedia} type="video/mp4"/>
+<source src={`${selectedMedia}?f_auto&q_auto`} type="video/mp4"/>
 </video>
 
 ) : (
@@ -351,8 +305,7 @@ src={selectedMedia}
 alt="large"
 className="modal-image"
 style={{
-transform:`scale(${zoom})`,
-transition:"transform 0.25s"
+transform:`scale(${zoom})`
 }}
 onClick={(e)=>e.stopPropagation()}
 onDoubleClick={toggleZoom}
@@ -360,9 +313,7 @@ onDoubleClick={toggleZoom}
 
 )}
 
-<button className="arrow right" onClick={nextMedia}>
-❯
-</button>
+<button className="arrow right" onClick={nextMedia}>❯</button>
 
 </div>
 
