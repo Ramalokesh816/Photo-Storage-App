@@ -26,13 +26,28 @@ Authorization:`Bearer ${token}`
 }
 });
 
+// Handle unauthorized response
+if(res.status === 401){
+console.log("Unauthorized - login required");
+setPhotos([]);
+setLoading(false);
+return;
+}
+
 const data = await res.json();
 
+// Ensure data is an array
+if(Array.isArray(data)){
 setPhotos(data);
+}else{
+console.log("API returned non-array:", data);
+setPhotos([]);
+}
 
 }catch(error){
 
 console.error("Failed to load photos",error);
+setPhotos([]);
 
 }
 
@@ -40,7 +55,8 @@ setLoading(false);
 
 };
 
-const recentPhotos = photos.slice(-4).reverse();
+// Safe slice
+const recentPhotos = Array.isArray(photos) ? photos.slice(-4).reverse() : [];
 
 return(
 
