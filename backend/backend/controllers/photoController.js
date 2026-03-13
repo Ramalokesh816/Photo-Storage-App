@@ -155,7 +155,7 @@ message:"Not authorized"
 /* Delete from Cloudinary */
 
 await cloudinary.uploader.destroy(photo.publicId,{
-resource_type:"auto"
+resource_type: photo.mediaType === "video" ? "video" : "image"
 });
 
 /* Delete from MongoDB */
