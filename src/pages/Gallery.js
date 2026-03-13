@@ -212,7 +212,7 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 className="media-item"
 onClick={()=>openMedia(photo.imageUrl,"video",index)}
 >
-<source src={`${photo.imageUrl}?f_auto,q_auto,fl_streaming`} />
+<source src={`${photo.imageUrl}?f_auto,q_auto:eco,fl_streaming,vc_auto`} />
 </video>
 ):(
 <img
@@ -263,7 +263,7 @@ preload="metadata"
 className="modal-video"
 onClick={(e)=>e.stopPropagation()}
 >
-<source src={`${selectedMedia}?f_auto,q_auto,fl_streaming`} type="video/mp4"/>
+<source src={`${selectedMedia}?f_auto,q_auto:eco,fl_streaming,vc_auto`} type="video/mp4"/>
 </video>
 ):(
 <img
