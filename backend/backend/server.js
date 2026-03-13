@@ -6,23 +6,30 @@ require("dotenv").config();
 const photoRoutes = require("./routes/photoRoutes");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const app = express();
 
 app.use(cors());
+app.use(express.json({ limit: "10mb" }));
 
-// increase request size for images
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
-
-mongoose.connect(process.env.MONGO_URI)
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
 .then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
+.catch((err) => console.log("MongoDB Error:", err));
 
+// Routes
+app.use("/api/auth", authRoutes);
 app.use("/api", photoRoutes);
-app.use("/api/auth",authRoutes);
-app.use("/api",profileRoutes);
+app.use("/api", profileRoutes);
+app.use("/api", dashboardRoutes);
 
-app.listen(process.env.PORT, () => {
-console.log("Server running on port 5000");
+// Port fallback
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

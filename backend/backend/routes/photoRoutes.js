@@ -2,15 +2,17 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  uploadPhoto,
-  getPhotos,
-  deletePhoto
+uploadPhoto,
+getPhotos,
+deletePhoto
 } = require("../controllers/photoController");
 
-router.post("/upload", uploadPhoto);
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/photos", getPhotos);
+router.post("/upload", authMiddleware, uploadPhoto);
 
-router.delete("/photos/:id", deletePhoto);
+router.get("/photos", authMiddleware, getPhotos);
+
+router.delete("/photos/:id", authMiddleware, deletePhoto);
 
 module.exports = router;

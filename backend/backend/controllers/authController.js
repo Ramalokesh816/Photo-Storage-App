@@ -2,77 +2,77 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+exports.register = async (req, res) => {
+  try {
 
-exports.register = async(req,res)=>{
+    const { name, email, password } = req.body;
 
-try{
+    const existingUser = await User.findOne({ email });
 
-const {name,email,password} = req.body;
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-const existingUser = await User.findOne({email});
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-if(existingUser){
-return res.status(400).json({message:"User already exists"});
-}
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword
+    });
 
-const hashedPassword = await bcrypt.hash(password,10);
+    await user.save();
 
-const user = new User({
-name,
-email,
-password:hashedPassword
-});
+    res.json({ message: "User registered successfully" });
 
-await user.save();
+  } catch (error) {
 
-res.json({message:"User registered successfully"});
+    res.status(500).json({ message: "Server error", error });
 
-}catch(error){
-
-res.status(500).json(error);
-
-}
-
+  }
 };
 
+exports.login = async (req, res) => {
 
-exports.login = async(req,res)=>{
+  try {
 
-try{
+    const { email, password } = req.body;
 
-const {email,password} = req.body;
+    const user = await User.findOne({ email });
 
-const user = await User.findOne({email});
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-if(!user){
-return res.status(400).json({message:"User not found"});
-}
+    const isMatch = await bcrypt.compare(password, user.password);
 
-const isMatch = await bcrypt.compare(password,user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
 
-if(!isMatch){
-return res.status(400).json({message:"Invalid password"});
-}
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "JWT Secret not configured" });
+    }
 
-const token = jwt.sign(
-{id:user._id},
-process.env.JWT_SECRET,
-{expiresIn:"7d"}
-);
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-res.json({
-token,
-user:{
-id:user._id,
-name:user.name,
-email:user.email
-}
-});
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
 
-}catch(error){
+  } catch (error) {
 
-res.status(500).json(error);
+    res.status(500).json({ message: "Server error", error });
 
-}
+  }
 
 };

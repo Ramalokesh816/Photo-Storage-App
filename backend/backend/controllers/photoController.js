@@ -1,66 +1,103 @@
 const Photo = require("../models/Photo");
 const cloudinary = require("../config/cloudinary");
 
-exports.uploadPhoto = async (req, res) => {
-  try {
 
-    const result = await cloudinary.uploader.upload(req.body.imageUrl);
+exports.uploadPhoto = async (req,res)=>{
 
-    const photo = new Photo({
-      title: "Photo",
-      imageUrl: result.secure_url,
-      publicId: result.public_id,
-      album: req.body.album
-    });
+try{
 
-    await photo.save();
+const result = await cloudinary.uploader.upload(
+req.body.imageUrl,
+{resource_type:"auto"}
+);
 
-    res.json(photo);
+const photo = new Photo({
 
-  } catch (error) {
-    console.log(error);
-    res.status(500).json(error);
-  }
+title:"Media",
+
+imageUrl:result.secure_url,
+
+publicId:result.public_id,
+
+album:req.body.album,
+
+mediaType:result.resource_type === "video" ? "video" : "image",
+
+size:result.bytes,   // ⭐ cloudinary file size
+
+userId:req.user.id
+
+});
+
+await photo.save();
+
+res.json(photo);
+
+}catch(error){
+
+console.log(error);
+res.status(500).json(error);
+
+}
+
+};
+exports.getPhotos = async (req,res)=>{
+
+try{
+
+if(!req.user){
+return res.status(401).json({message:"Unauthorized"});
+}
+
+const filter = {
+userId:req.user.id
 };
 
+if(req.query.album){
+filter.album = req.query.album;
+}
 
-exports.getPhotos = async (req, res) => {
+const photos = await Photo.find(filter).sort({createdAt:-1});
 
-  try {
+res.json(photos);
 
-    const photos = await Photo.find();
-    res.json(photos);
+}catch(error){
 
-  } catch (error) {
+console.log("GET PHOTOS ERROR:",error);
 
-    res.status(500).json(error);
+res.status(500).json({
+message:"Failed to fetch photos"
+});
 
-  }
+}
 
 };
+exports.deletePhoto = async (req,res)=>{
 
+try{
 
-exports.deletePhoto = async (req, res) => {
+const photo = await Photo.findById(req.params.id);
 
-  try {
+if(!photo){
+return res.status(404).json({message:"Photo not found"});
+}
 
-    const photo = await Photo.findById(req.params.id);
+if(photo.userId.toString() !== req.user.id){
+return res.status(403).json({message:"Not authorized"});
+}
 
-    if(!photo){
-      return res.status(404).json({message:"Photo not found"});
-    }
+await cloudinary.uploader.destroy(photo.publicId);
 
-    await cloudinary.uploader.destroy(photo.publicId);
+await Photo.findByIdAndDelete(req.params.id);
 
-    await Photo.findByIdAndDelete(req.params.id);
+res.json({message:"Photo deleted successfully"});
 
-    res.json({message:"Photo deleted successfully"});
+}catch(error){
 
-  } catch (error) {
+console.log(error);
 
-    console.log(error);
-    res.status(500).json(error);
+res.status(500).json(error);
 
-  }
+}
 
 };

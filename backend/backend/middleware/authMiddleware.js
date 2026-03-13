@@ -1,27 +1,27 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function(req, res, next) {
+module.exports = function(req,res,next){
 
-  const authHeader = req.headers.authorization;
+const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token provided" });
-  }
+if(!authHeader){
+return res.status(401).json({message:"No token provided"});
+}
 
-  const token = authHeader.split(" ")[1];
+const token = authHeader.split(" ")[1];
 
-  try {
+try{
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+const decoded = jwt.verify(token,process.env.JWT_SECRET);
 
-    req.user = decoded;
+req.user = decoded;
 
-    next();
+next();
 
-  } catch (error) {
+}catch(error){
 
-    res.status(401).json({ message: "Invalid token" });
+res.status(401).json({message:"Invalid token"});
 
-  }
+}
 
 };
