@@ -14,12 +14,11 @@ const [selectedAlbum,setSelectedAlbum] = useState("All");
 const [loading,setLoading] = useState(true);
 
 const [zoom,setZoom] = useState(1);
-const [lastTap,setLastTap] = useState(0);
 
 const [touchStart,setTouchStart] = useState(null);
 const [touchEnd,setTouchEnd] = useState(null);
 
-/* ================= FETCH PHOTOS ================= */
+/* FETCH PHOTOS */
 
 useEffect(()=>{
 fetchPhotos();
@@ -34,10 +33,10 @@ const token = localStorage.getItem("token");
 const res = await fetch(
 "https://photo-storage-app.onrender.com/api/photos",
 {
-headers:{
-Authorization:`Bearer ${token}`
-}
+headers:{Authorization:`Bearer ${token}`}
 });
+
+if(!res.ok) throw new Error();
 
 const data = await res.json();
 setPhotos(data);
@@ -52,7 +51,7 @@ setLoading(false);
 
 };
 
-/* ================= DELETE PHOTO ================= */
+/* DELETE PHOTO */
 
 const deletePhoto = async(id)=>{
 
@@ -60,14 +59,14 @@ try{
 
 const token = localStorage.getItem("token");
 
-await fetch(
+const res = await fetch(
 `https://photo-storage-app.onrender.com/api/photos/${id}`,
 {
 method:"DELETE",
-headers:{
-Authorization:`Bearer ${token}`
-}
+headers:{Authorization:`Bearer ${token}`}
 });
+
+if(!res.ok) throw new Error();
 
 setPhotos(prev=>prev.filter(photo=>photo._id !== id));
 
@@ -81,7 +80,7 @@ toast.error("Delete failed");
 
 };
 
-/* ================= FILTER ================= */
+/* FILTER */
 
 const filteredPhotos =
 selectedAlbum === "All"
@@ -90,89 +89,76 @@ selectedAlbum === "All"
 photo.album?.toLowerCase() === selectedAlbum.toLowerCase()
 );
 
-/* ================= OPEN MEDIA ================= */
+/* OPEN MEDIA */
 
-const openMedia = (url,type,index)=>{
+const openMedia=(url,type,index)=>{
 setSelectedMedia(url);
 setSelectedType(type);
 setSelectedIndex(index);
 setZoom(1);
 };
 
-/* ================= NEXT MEDIA ================= */
+/* NEXT */
 
-const nextMedia = (e)=>{
+const nextMedia=(e)=>{
 e.stopPropagation();
 
-const nextIndex =
-(selectedIndex + 1) % filteredPhotos.length;
+const nextIndex=(selectedIndex+1)%filteredPhotos.length;
 
 setSelectedIndex(nextIndex);
 setSelectedMedia(filteredPhotos[nextIndex].imageUrl);
 setSelectedType(filteredPhotos[nextIndex].mediaType);
 };
 
-/* ================= PREVIOUS MEDIA ================= */
+/* PREVIOUS */
 
-const prevMedia = (e)=>{
+const prevMedia=(e)=>{
 e.stopPropagation();
 
-const prevIndex =
-(selectedIndex - 1 + filteredPhotos.length) %
-filteredPhotos.length;
+const prevIndex=(selectedIndex-1+filteredPhotos.length)%filteredPhotos.length;
 
 setSelectedIndex(prevIndex);
 setSelectedMedia(filteredPhotos[prevIndex].imageUrl);
 setSelectedType(filteredPhotos[prevIndex].mediaType);
 };
 
-/* ================= ZOOM ================= */
+/* ZOOM */
 
-const toggleZoom = ()=>{
-if(selectedType !== "image") return;
-setZoom(prev => prev === 1 ? 2 : 1);
+const toggleZoom=()=>{
+if(selectedType!=="image") return;
+setZoom(prev=>prev===1?2:1);
 };
 
-/* ================= DOUBLE TAP ================= */
+/* MOBILE SWIPE */
 
-const handleDoubleTap = ()=>{
-
-const now = Date.now();
-
-if(lastTap && now - lastTap < 300){
-toggleZoom();
-}
-
-setLastTap(now);
-
-};
-
-/* ================= SWIPE ================= */
-
-const handleTouchStart = (e)=>{
+const handleTouchStart=(e)=>{
 setTouchStart(e.touches[0].clientX);
-handleDoubleTap();
 };
 
-const handleTouchMove = (e)=>{
+const handleTouchMove=(e)=>{
 setTouchEnd(e.touches[0].clientX);
 };
 
-const handleTouchEnd = ()=>{
+const handleTouchEnd=()=>{
 
 if(!touchStart || !touchEnd) return;
 
-const distance = touchStart - touchEnd;
+const distance=touchStart-touchEnd;
 
-if(distance > 50) nextMedia({stopPropagation:()=>{}});
-if(distance < -50) prevMedia({stopPropagation:()=>{}});
+if(distance>50){
+nextMedia({stopPropagation:()=>{}});
+}
+
+if(distance<-50){
+prevMedia({stopPropagation:()=>{}});
+}
 
 setTouchStart(null);
 setTouchEnd(null);
 
 };
 
-/* ================= LOADING ================= */
+/* LOADING */
 
 if(loading){
 
@@ -188,7 +174,7 @@ return(
 
 }
 
-/* ================= UI ================= */
+/* UI */
 
 return(
 
@@ -221,29 +207,28 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 
 <div className="photo-card" key={photo._id}>
 
-{photo.mediaType === "video" ? (
-
+{photo.mediaType==="video"?(
 <video
 className="media-item"
 onClick={()=>openMedia(photo.imageUrl,"video",index)}
 >
-<source src={`${photo.imageUrl}?f_auto,q_auto:good,fl_progressive`} />
+<source src={`${photo.imageUrl}?q_auto:low,f_auto,fl_progressive`} />
 </video>
-
-) : (
-
+):(
 <img
 className="media-item"
 src={photo.imageUrl}
 alt="gallery"
 onClick={()=>openMedia(photo.imageUrl,"image",index)}
 />
-
 )}
 
 <button
 className="delete-btn"
-onClick={()=>deletePhoto(photo._id)}
+onClick={(e)=>{
+e.stopPropagation();
+deletePhoto(photo._id);
+}}
 >
 Delete
 </button>
@@ -256,9 +241,9 @@ Delete
 
 </div>
 
-{/* ================= MODAL ================= */}
+{/* MODAL */}
 
-{selectedMedia && (
+{selectedMedia &&(
 
 <div
 className="modal"
@@ -270,8 +255,7 @@ onTouchEnd={handleTouchEnd}
 
 <button className="arrow left" onClick={prevMedia}>❮</button>
 
-{selectedType === "video" ? (
-
+{selectedType==="video"?(
 <video
 controls
 playsInline
@@ -279,23 +263,17 @@ preload="auto"
 className="modal-video"
 onClick={(e)=>e.stopPropagation()}
 >
-<source src={`${selectedMedia}?f_auto,q_auto:good,fl_progressive`} type="video/mp4"/>
+<source src={`${selectedMedia}?q_auto:low,f_auto,fl_progressive`} type="video/mp4"/>
 </video>
-
-) : (
-
+):(
 <img
 src={selectedMedia}
 alt="large"
 className="modal-image"
-style={{
-transform:`scale(${zoom})`,
-transition:"transform .25s"
-}}
+style={{transform:`scale(${zoom})`}}
 onClick={(e)=>e.stopPropagation()}
 onDoubleClick={toggleZoom}
 />
-
 )}
 
 <button className="arrow right" onClick={nextMedia}>❯</button>
