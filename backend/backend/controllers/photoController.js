@@ -22,14 +22,15 @@ const streamUpload = () => {
 
 return new Promise((resolve,reject)=>{
 
-const stream = cloudinary.uploader.upload_stream(
+
+   const stream = cloudinary.uploader.upload_stream(
 {
   resource_type: "video",
 
-  // mobile compatible codec
+  // ensure mobile compatible codec
   video_codec: "h264",
 
-  // generate streaming versions
+  // generate streaming version
   eager: [
     { streaming_profile: "full_hd", format: "m3u8" }
   ],

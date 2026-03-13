@@ -170,8 +170,8 @@ if(selectedMedia && selectedType==="video"){
 
 const video=videoRef.current;
 
-const hlsUrl=
-selectedMedia.replace("/upload/","/upload/sp_full_hd/") + ".m3u8";
+const hlsUrl =
+selectedMedia.replace(".mp4",".m3u8").replace("/upload/","/upload/sp_full_hd/");
 
 if(Hls.isSupported()){
 
