@@ -10,7 +10,12 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const app = express();
 
-app.use(cors());
+// CORS Fix for frontend
+app.use(cors({
+  origin: "https://photo-storage-app-1.onrender.com",
+  credentials: true
+}));
+
 app.use(express.json({ limit: "10mb" }));
 
 // MongoDB Connection
