@@ -147,7 +147,7 @@ try{
 
 const token = localStorage.getItem("token");
 
-await fetch("hhttps://photo-storage-app.onrender.com/api/profile",{
+await fetch("https://photo-storage-app.onrender.com/api/profile",{
 
 method:"PUT",
 
