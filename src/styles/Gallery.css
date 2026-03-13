@@ -1,4 +1,6 @@
-/* ANIMATED BACKGROUND */
+/* =========================
+   ANIMATED BACKGROUND
+========================= */
 
 .gallery-page{
 min-height:100vh;
@@ -9,12 +11,17 @@ overflow-x:hidden;
 }
 
 @keyframes gradientMove{
+
 0%{background-position:0% 50%;}
 50%{background-position:100% 50%;}
 100%{background-position:0% 50%;}
+
 }
 
-/* GALLERY */
+
+/* =========================
+   GALLERY
+========================= */
 
 .gallery{
 padding:90px 20px;
@@ -27,9 +34,13 @@ padding:10px 14px;
 border-radius:8px;
 border:none;
 margin:20px;
+font-size:14px;
 }
 
-/* GRID */
+
+/* =========================
+   GRID
+========================= */
 
 .gallery-grid{
 display:grid;
@@ -38,7 +49,10 @@ gap:20px;
 padding:10px;
 }
 
-/* CARD */
+
+/* =========================
+   CARD
+========================= */
 
 .photo-card{
 background:white;
@@ -46,14 +60,17 @@ border-radius:14px;
 overflow:hidden;
 position:relative;
 box-shadow:0 6px 18px rgba(0,0,0,0.2);
-transition:transform .3s;
+transition:transform .25s ease;
 }
 
 .photo-card:hover{
 transform:scale(1.05);
 }
 
-/* MEDIA */
+
+/* =========================
+   MEDIA
+========================= */
 
 .media-item{
 width:100%;
@@ -62,7 +79,10 @@ object-fit:cover;
 cursor:pointer;
 }
 
-/* DELETE BUTTON */
+
+/* =========================
+   DELETE BUTTON
+========================= */
 
 .delete-btn{
 position:absolute;
@@ -74,9 +94,18 @@ padding:6px 12px;
 border-radius:6px;
 color:white;
 cursor:pointer;
+font-size:12px;
+transition:.2s;
 }
 
-/* MODAL */
+.delete-btn:hover{
+background:#ff0000;
+}
+
+
+/* =========================
+   MODAL
+========================= */
 
 .modal{
 position:fixed;
@@ -84,12 +113,17 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.95);
+background:rgba(0,0,0,0.96);
 display:flex;
 align-items:center;
 justify-content:center;
 z-index:999;
-animation:fadeIn .3s ease;
+
+/* prevent page scroll */
+overflow:hidden;
+
+/* smooth animation */
+animation:fadeIn .25s ease;
 }
 
 @keyframes fadeIn{
@@ -97,22 +131,41 @@ from{opacity:0;}
 to{opacity:1;}
 }
 
+
+/* =========================
+   MODAL IMAGE
+========================= */
+
 .modal-image{
 max-width:90%;
-max-height:85%;
+max-height:85vh;
 border-radius:10px;
 cursor:zoom-in;
-transition:transform .3s;
+transition:transform .35s ease;
 }
+
+
+/* =========================
+   MODAL VIDEO
+========================= */
 
 .modal-video{
 width:100%;
-max-height:90vh;
+height:auto;
+max-width:100%;
+max-height:85vh;
 object-fit:contain;
 background:black;
+
+/* GPU acceleration */
+transform:translateZ(0);
+will-change:transform;
 }
 
-/* ARROWS */
+
+/* =========================
+   ARROWS
+========================= */
 
 .arrow{
 position:absolute;
@@ -123,12 +176,38 @@ background:none;
 border:none;
 color:white;
 cursor:pointer;
+opacity:0.8;
+transition:.2s;
 }
 
-.left{left:20px;}
-.right{right:20px;}
+.arrow:hover{
+opacity:1;
+}
 
-/* MOBILE */
+.left{
+left:20px;
+}
+
+.right{
+right:20px;
+}
+
+
+/* =========================
+   LOADING
+========================= */
+
+.loading{
+text-align:center;
+margin-top:120px;
+color:white;
+font-size:20px;
+}
+
+
+/* =========================
+   MOBILE RESPONSIVE
+========================= */
 
 @media(max-width:768px){
 
@@ -150,6 +229,8 @@ max-height:70vh;
 }
 
 .modal-video{
+width:100%;
+height:auto;
 max-height:70vh;
 }
 

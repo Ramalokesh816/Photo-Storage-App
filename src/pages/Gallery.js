@@ -261,9 +261,10 @@ controls
 playsInline
 preload="metadata"
 className="modal-video"
+style={{width:"100%",height:"auto"}}
 onClick={(e)=>e.stopPropagation()}
 >
-<source src={`${selectedMedia}?f_auto,q_auto:eco,fl_streaming,vc_auto`} type="video/mp4"/>
+<source src={`${selectedMedia}?f_auto,q_auto:eco,fl_progressive`} type="video/mp4"/>
 </video>
 ):(
 <img
