@@ -13,11 +13,10 @@ const [selectedIndex,setSelectedIndex] = useState(null);
 const [selectedAlbum,setSelectedAlbum] = useState("All");
 const [loading,setLoading] = useState(true);
 
-/* NEW STATES */
-
 const [zoom,setZoom] = useState(1);
 const [touchStart,setTouchStart] = useState(null);
 const [touchEnd,setTouchEnd] = useState(null);
+const [lastTap,setLastTap] = useState(0);
 
 /* ================================
    FETCH PHOTOS
@@ -147,7 +146,7 @@ setZoom(1);
 };
 
 /* ================================
-   IMAGE ZOOM
+   IMAGE ZOOM (Scroll)
 ================================ */
 
 const handleZoom = (e)=>{
@@ -165,11 +164,34 @@ setZoom(prev => Math.max(prev - 0.2,1));
 };
 
 /* ================================
+   DOUBLE CLICK / TAP ZOOM
+================================ */
+
+const toggleZoom = ()=>{
+if(selectedType !== "image") return;
+setZoom(prev => prev === 1 ? 2 : 1);
+};
+
+const handleDoubleTap = ()=>{
+
+const now = Date.now();
+const DOUBLE_TAP_DELAY = 300;
+
+if(lastTap && now - lastTap < DOUBLE_TAP_DELAY){
+toggleZoom();
+}
+
+setLastTap(now);
+
+};
+
+/* ================================
    MOBILE SWIPE
 ================================ */
 
 const handleTouchStart = (e)=>{
 setTouchStart(e.targetTouches[0].clientX);
+handleDoubleTap();
 };
 
 const handleTouchMove = (e)=>{
@@ -315,11 +337,11 @@ onTouchEnd={handleTouchEnd}
 <video
 controls
 playsInline
-preload="metadata"
+preload="auto"
 className="modal-video"
 onClick={(e)=>e.stopPropagation()}
 >
-<source src={selectedMedia} type="application/x-mpegURL" />
+<source src={selectedMedia} type="video/mp4"/>
 </video>
 
 ) : (
@@ -330,9 +352,10 @@ alt="large"
 className="modal-image"
 style={{
 transform:`scale(${zoom})`,
-transition:"transform 0.2s"
+transition:"transform 0.25s"
 }}
 onClick={(e)=>e.stopPropagation()}
+onDoubleClick={toggleZoom}
 />
 
 )}

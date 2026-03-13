@@ -24,21 +24,16 @@ return new Promise((resolve,reject)=>{
 
 const stream = cloudinary.uploader.upload_stream(
 {
-resource_type:"video",
+resource_type: "auto",
 
-// streaming optimization
-chunk_size: 6000000,
+// mobile friendly format
+format: "mp4",
 
-// auto optimization
+// automatic compression
 quality: "auto",
-fetch_format: "auto",
 
-// generate streaming versions
-eager: [
-{ streaming_profile: "full_hd", format: "m3u8" }
-],
-
-eager_async: true
+// better compatibility
+video_codec: "auto"
 },
 (error,result)=>{
 
@@ -49,7 +44,6 @@ reject(error);
 }
 
 }
-
 );
 
 streamifier
@@ -158,7 +152,9 @@ message:"Not authorized"
 });
 }
 
-await cloudinary.uploader.destroy(photo.publicId);
+await cloudinary.uploader.destroy(photo.publicId,{
+resource_type:"video"
+});
 
 await Photo.findByIdAndDelete(req.params.id);
 
