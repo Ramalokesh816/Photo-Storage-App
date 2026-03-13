@@ -14,9 +14,10 @@ const [selectedAlbum,setSelectedAlbum] = useState("All");
 const [loading,setLoading] = useState(true);
 
 const [zoom,setZoom] = useState(1);
+const [lastTap,setLastTap] = useState(0);
+
 const [touchStart,setTouchStart] = useState(null);
 const [touchEnd,setTouchEnd] = useState(null);
-const [lastTap,setLastTap] = useState(0);
 
 /* ================= FETCH ================= */
 
@@ -33,14 +34,18 @@ const token = localStorage.getItem("token");
 const res = await fetch(
 "https://photo-storage-app.onrender.com/api/photos",
 {
-headers:{ Authorization:`Bearer ${token}` }
+headers:{
+Authorization:`Bearer ${token}`
+}
 });
 
 const data = await res.json();
 setPhotos(data);
 
 }catch{
+
 toast.error("Failed to load gallery");
+
 }
 
 setLoading(false);
@@ -59,10 +64,12 @@ await fetch(
 `https://photo-storage-app.onrender.com/api/photos/${id}`,
 {
 method:"DELETE",
-headers:{ Authorization:`Bearer ${token}` }
+headers:{
+Authorization:`Bearer ${token}`
+}
 });
 
-setPhotos(prev=>prev.filter(p=>p._id !== id));
+setPhotos(prev=>prev.filter(photo=>photo._id !== id));
 
 toast.success("Photo deleted");
 
@@ -92,7 +99,7 @@ setSelectedIndex(index);
 setZoom(1);
 };
 
-/* ================= NAVIGATION ================= */
+/* ================= NEXT ================= */
 
 const nextMedia = (e)=>{
 e.stopPropagation();
@@ -103,7 +110,10 @@ const nextIndex =
 setSelectedIndex(nextIndex);
 setSelectedMedia(filteredPhotos[nextIndex].imageUrl);
 setSelectedType(filteredPhotos[nextIndex].mediaType);
+setZoom(1);
 };
+
+/* ================= PREVIOUS ================= */
 
 const prevMedia = (e)=>{
 e.stopPropagation();
@@ -115,21 +125,10 @@ filteredPhotos.length;
 setSelectedIndex(prevIndex);
 setSelectedMedia(filteredPhotos[prevIndex].imageUrl);
 setSelectedType(filteredPhotos[prevIndex].mediaType);
+setZoom(1);
 };
 
 /* ================= ZOOM ================= */
-
-const handleZoom = (e)=>{
-
-if(selectedType !== "image") return;
-
-if(e.deltaY < 0){
-setZoom(prev => Math.min(prev + 0.2,3));
-}else{
-setZoom(prev => Math.max(prev - 0.2,1));
-}
-
-};
 
 const toggleZoom = ()=>{
 if(selectedType !== "image") return;
@@ -150,7 +149,7 @@ setLastTap(now);
 
 };
 
-/* ================= MOBILE SWIPE ================= */
+/* ================= SWIPE ================= */
 
 const handleTouchStart = (e)=>{
 setTouchStart(e.touches[0].clientX);
@@ -174,18 +173,6 @@ setTouchStart(null);
 setTouchEnd(null);
 
 };
-
-/* ================= MODAL SCROLL LOCK ================= */
-
-useEffect(()=>{
-
-if(selectedMedia){
-document.body.style.overflow="hidden";
-}else{
-document.body.style.overflow="auto";
-}
-
-},[selectedMedia]);
 
 /* ================= LOADING ================= */
 
@@ -232,7 +219,13 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 
 <div className="gallery-grid">
 
-{filteredPhotos.map((photo,index)=>(
+{filteredPhotos.length === 0 ? (
+
+<p>No photos uploaded yet</p>
+
+) : (
+
+filteredPhotos.map((photo,index)=>(
 
 <div className="photo-card" key={photo._id}>
 
@@ -242,7 +235,7 @@ onChange={(e)=>setSelectedAlbum(e.target.value)}
 className="media-item"
 onClick={()=>openMedia(photo.imageUrl,"video",index)}
 >
-<source src={`${photo.imageUrl}?f_auto&q_auto`} />
+<source src={`${photo.imageUrl}?f_auto,q_auto:good,fl_progressive`} />
 </video>
 
 ) : (
@@ -265,7 +258,9 @@ Delete
 
 </div>
 
-))}
+))
+
+)}
 
 </div>
 
@@ -278,7 +273,6 @@ Delete
 <div
 className="modal"
 onClick={()=>setSelectedMedia(null)}
-onWheel={handleZoom}
 onTouchStart={handleTouchStart}
 onTouchMove={handleTouchMove}
 onTouchEnd={handleTouchEnd}
@@ -291,11 +285,11 @@ onTouchEnd={handleTouchEnd}
 <video
 controls
 playsInline
-preload="metadata"
+preload="auto"
 className="modal-video"
 onClick={(e)=>e.stopPropagation()}
 >
-<source src={`${selectedMedia}?f_auto&q_auto`} type="video/mp4"/>
+<source src={`${selectedMedia}?f_auto,q_auto:good,fl_progressive`} type="video/mp4"/>
 </video>
 
 ) : (
@@ -305,7 +299,8 @@ src={selectedMedia}
 alt="large"
 className="modal-image"
 style={{
-transform:`scale(${zoom})`
+transform:`scale(${zoom})`,
+transition:"transform .25s ease"
 }}
 onClick={(e)=>e.stopPropagation()}
 onDoubleClick={toggleZoom}
