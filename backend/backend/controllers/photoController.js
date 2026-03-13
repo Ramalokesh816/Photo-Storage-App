@@ -16,7 +16,7 @@ return res.status(400).json({message:"No file uploaded"});
 
 const album = req.body.album;
 
-/* Upload buffer to Cloudinary */
+/* Upload file buffer to Cloudinary */
 
 const streamUpload = () => {
 
@@ -24,21 +24,16 @@ return new Promise((resolve,reject)=>{
 
 const stream = cloudinary.uploader.upload_stream(
 {
-resource_type: "video",
+resource_type:"auto",
 
-// mobile compatible
-format: "mp4",
+// mobile compatible format
+format:"mp4",
 
-// progressive streaming
-quality: "auto",
-video_codec: "auto",
+// automatic compression
+quality:"auto",
 
-// reduce buffering
-eager: [
-{ width: 1280, crop: "limit", quality: "auto", format: "mp4" }
-],
-
-eager_async: true
+// choose best codec
+video_codec:"auto"
 },
 (error,result)=>{
 
@@ -61,7 +56,7 @@ streamifier
 
 const result = await streamUpload();
 
-/* Save media to MongoDB */
+/* Save media details in MongoDB */
 
 const photo = new Photo({
 
@@ -157,9 +152,13 @@ message:"Not authorized"
 });
 }
 
+/* Delete from Cloudinary */
+
 await cloudinary.uploader.destroy(photo.publicId,{
-resource_type:"video"
+resource_type:"auto"
 });
+
+/* Delete from MongoDB */
 
 await Photo.findByIdAndDelete(req.params.id);
 
