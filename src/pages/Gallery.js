@@ -168,22 +168,32 @@ useEffect(()=>{
 
 if(selectedMedia && selectedType==="video"){
 
-const video=videoRef.current;
+const video = videoRef.current;
+
+if(!video) return;
 
 const hlsUrl =
 selectedMedia.replace(".mp4",".m3u8").replace("/upload/","/upload/sp_full_hd/");
 
 if(Hls.isSupported()){
 
-const hls=new Hls();
+const hls = new Hls({
+maxBufferLength:10,
+maxMaxBufferLength:20,
+enableWorker:true
+});
 
 hls.loadSource(hlsUrl);
 
 hls.attachMedia(video);
 
-}else{
+hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+video.play().catch(()=>{});
+});
 
-video.src=hlsUrl;
+}else if(video.canPlayType("application/vnd.apple.mpegurl")){
+
+video.src = hlsUrl;
 
 }
 
@@ -293,6 +303,7 @@ onTouchEnd={handleTouchEnd}
 ref={videoRef}
 controls
 playsInline
+preload="metadata"
 className="modal-video"
 onClick={(e)=>e.stopPropagation()}
 />
