@@ -164,43 +164,46 @@ setTouchEnd(null);
 
 /* ================= HLS STREAMING ================= */
 
-useEffect(()=>{
+useEffect(() => {
+  let hls;
 
-if(selectedMedia && selectedType==="video"){
+  if (selectedMedia && selectedType === "video") {
+    const video = videoRef.current;
+    if (!video) return;
 
-const video = videoRef.current;
+    const hlsUrl = selectedMedia
+      .replace(".mp4", ".m3u8")
+      .replace("/upload/", "/upload/sp_full_hd/");
 
-if(!video) return;
+    if (Hls.isSupported()) {
+      hls = new Hls({
+        maxBufferLength: 10,
+        maxMaxBufferLength: 20,
+        enableWorker: true
+      });
 
-const hlsUrl =
-selectedMedia.replace(".mp4",".m3u8").replace("/upload/","/upload/sp_full_hd/");
+      hls.loadSource(hlsUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => {});
+      });
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = hlsUrl;
+    }
+  }
 
-if(Hls.isSupported()){
-
-const hls = new Hls({
-maxBufferLength:10,
-maxMaxBufferLength:20,
-enableWorker:true
-});
-
-hls.loadSource(hlsUrl);
-
-hls.attachMedia(video);
-
-hls.on(Hls.Events.MANIFEST_PARSED,()=>{
-video.play().catch(()=>{});
-});
-
-}else if(video.canPlayType("application/vnd.apple.mpegurl")){
-
-video.src = hlsUrl;
-
-}
-
-}
-
-},[selectedMedia]);
-
+  // Cleanup function: Triggered when the modal closes or video changes
+  return () => {
+    if (hls) {
+      hls.destroy();
+    }
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.src = "";
+      videoRef.current.load();
+    }
+  };
+}, [selectedMedia]);
 /* ================= LOADING ================= */
 
 if(loading){
