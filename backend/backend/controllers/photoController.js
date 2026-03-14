@@ -6,179 +6,167 @@ const streamifier = require("streamifier");
    UPLOAD PHOTO / VIDEO
 ====================== */
 
-exports.uploadPhoto = async (req,res)=>{
+exports.uploadPhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
-try{
+    const album = req.body.album;
 
-if(!req.file){
-return res.status(400).json({message:"No file uploaded"});
-}
+    // Detect if uploaded file is video
+    const isVideo = req.file.mimetype.startsWith("video");
 
-const album = req.body.album;
+    /* Upload file buffer to Cloudinary */
 
-/* Upload file buffer to Cloudinary */
+    const streamUpload = () => {
+      return new Promise((resolve, reject) => {
 
-const streamUpload = () => {
+        const uploadOptions = {
+          resource_type: isVideo ? "video" : "image",
+        };
 
-return new Promise((resolve,reject)=>{
+        // Only apply video processing for videos
+        if (isVideo) {
+          uploadOptions.video_codec = "h264";
 
+          // Generate HLS streaming version
+          uploadOptions.eager = [
+            { streaming_profile: "full_hd", format: "m3u8" }
+          ];
 
-   const stream = cloudinary.uploader.upload_stream(
-{
-  resource_type: "video",
+          uploadOptions.eager_async = true;
+        }
 
-  // mobile friendly codec
-  video_codec: "h264",
+        const stream = cloudinary.uploader.upload_stream(
+          uploadOptions,
+          (error, result) => {
+            if (result) {
+              resolve(result);
+            } else {
+              reject(error);
+            }
+          }
+        );
 
-  // generate HLS streaming version
-  eager: [
-    { streaming_profile: "full_hd", format: "m3u8" }
-  ],
+        streamifier
+          .createReadStream(req.file.buffer)
+          .pipe(stream);
 
-  // IMPORTANT: process video in background
-  eager_async: true,
+      });
+    };
 
-  // optional notification url (can leave empty)
-  eager_notification_url: "https://example.com"
-},
-(error,result)=>{
-if(result){
-resolve(result);
-}else{
-reject(error);
-}
+    const result = await streamUpload();
 
-}
-);
+    /* Save media details in MongoDB */
 
-streamifier
-.createReadStream(req.file.buffer)
-.pipe(stream);
+    const photo = new Photo({
+      title: "Media",
+      imageUrl: result.secure_url,
+      publicId: result.public_id,
+      album: album,
+      mediaType: isVideo ? "video" : "image",
+      size: result.bytes,
+      userId: req.user.id
+    });
 
-});
+    await photo.save();
 
+    res.json(photo);
+
+  } catch (error) {
+    console.log("UPLOAD ERROR:", error);
+
+    res.status(500).json({
+      message: "Upload failed"
+    });
+  }
 };
 
-const result = await streamUpload();
-
-/* Save media details in MongoDB */
-
-const photo = new Photo({
-
-title:"Media",
-
-imageUrl: result.secure_url,
-
-publicId: result.public_id,
-
-album: album,
-
-mediaType: result.resource_type === "video" ? "video" : "image",
-
-size: result.bytes,
-
-userId: req.user.id
-
-});
-
-await photo.save();
-
-res.json(photo);
-
-}catch(error){
-
-console.log("UPLOAD ERROR:",error);
-
-res.status(500).json({
-message:"Upload failed"
-});
-
-}
-
-};
 
 /* ======================
    GET PHOTOS
 ====================== */
 
-exports.getPhotos = async (req,res)=>{
+exports.getPhotos = async (req, res) => {
 
-try{
+  try {
 
-if(!req.user){
-return res.status(401).json({message:"Unauthorized"});
-}
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
 
-const filter = {
-userId:req.user.id
+    const filter = {
+      userId: req.user.id
+    };
+
+    if (req.query.album) {
+      filter.album = req.query.album;
+    }
+
+    const photos = await Photo
+      .find(filter)
+      .sort({ createdAt: -1 });
+
+    res.json(photos);
+
+  } catch (error) {
+
+    console.log("GET PHOTOS ERROR:", error);
+
+    res.status(500).json({
+      message: "Failed to fetch photos"
+    });
+
+  }
+
 };
 
-if(req.query.album){
-filter.album = req.query.album;
-}
-
-const photos = await Photo
-.find(filter)
-.sort({createdAt:-1});
-
-res.json(photos);
-
-}catch(error){
-
-console.log("GET PHOTOS ERROR:",error);
-
-res.status(500).json({
-message:"Failed to fetch photos"
-});
-
-}
-
-};
 
 /* ======================
-   DELETE PHOTO
+   DELETE PHOTO / VIDEO
 ====================== */
 
-exports.deletePhoto = async (req,res)=>{
+exports.deletePhoto = async (req, res) => {
 
-try{
+  try {
 
-const photo = await Photo.findById(req.params.id);
+    const photo = await Photo.findById(req.params.id);
 
-if(!photo){
-return res.status(404).json({
-message:"Photo not found"
-});
-}
+    if (!photo) {
+      return res.status(404).json({
+        message: "Photo not found"
+      });
+    }
 
-if(photo.userId.toString() !== req.user.id){
-return res.status(403).json({
-message:"Not authorized"
-});
-}
+    if (photo.userId.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Not authorized"
+      });
+    }
 
-/* Delete from Cloudinary */
+    /* Delete from Cloudinary */
 
-await cloudinary.uploader.destroy(photo.publicId,{
-resource_type: photo.mediaType === "video" ? "video" : "image"
-});
+    await cloudinary.uploader.destroy(photo.publicId, {
+      resource_type: photo.mediaType === "video" ? "video" : "image"
+    });
 
-/* Delete from MongoDB */
+    /* Delete from MongoDB */
 
-await Photo.findByIdAndDelete(req.params.id);
+    await Photo.findByIdAndDelete(req.params.id);
 
-res.json({
-message:"Photo deleted successfully"
-});
+    res.json({
+      message: "Photo deleted successfully"
+    });
 
-}catch(error){
+  } catch (error) {
 
-console.log("DELETE ERROR:",error);
+    console.log("DELETE ERROR:", error);
 
-res.status(500).json({
-message:"Delete failed"
-});
+    res.status(500).json({
+      message: "Delete failed"
+    });
 
-}
+  }
 
 };

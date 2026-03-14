@@ -163,7 +163,6 @@ setTouchEnd(null);
 };
 
 /* ================= HLS STREAMING ================= */
-
 useEffect(() => {
   let hls;
 
@@ -184,26 +183,36 @@ useEffect(() => {
 
       hls.loadSource(hlsUrl);
       hls.attachMedia(video);
+
+      // ADD THIS ERROR HANDLER: If HLS fails (e.g. still processing), switch to MP4
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          console.warn("HLS stream failed, falling back to original MP4");
+          video.src = selectedMedia; 
+          video.play();
+        }
+      });
+
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(() => {});
       });
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
+    } else {
+      // Default fallback
+      video.src = selectedMedia;
     }
   }
 
-  // Cleanup function: Triggered when the modal closes or video changes
   return () => {
-    if (hls) {
-      hls.destroy();
-    }
+    if (hls) hls.destroy();
     if (videoRef.current) {
       videoRef.current.pause();
-      videoRef.current.src = "";
+      videoRef.current.removeAttribute("src");
       videoRef.current.load();
     }
   };
-}, [selectedMedia]);
+}, [selectedMedia, selectedType]);
 /* ================= LOADING ================= */
 
 if(loading){
@@ -303,13 +312,14 @@ onTouchEnd={handleTouchEnd}
 
 {selectedType==="video"?(
 <video
-ref={videoRef}
-controls
-playsInline
-preload="metadata"
-className="modal-video"
-onClick={(e)=>e.stopPropagation()}
+  ref={videoRef}
+  controls
+  playsInline
+  preload="metadata" // Add this back!
+  className="modal-video"
+  onClick={(e)=>e.stopPropagation()}
 />
+
 ):(
 <img
 src={selectedMedia}
