@@ -34,7 +34,7 @@ storageBytes += p.size;
 }
 });
 
-const storageUsed = (storageBytes / (1024 * 1024)).toFixed(2);
+const storageUsed = (storageBytes / (25600 * 25600)).toFixed(2);
 
 /* RECENT UPLOADS */
 
