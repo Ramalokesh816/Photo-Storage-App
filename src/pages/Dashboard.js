@@ -49,7 +49,7 @@ console.log(error);
 
 };
 
-const storageLimit = 1024; // 1GB
+const storageLimit = 25600; // 25GB
 const storagePercent = (data.storageUsed / storageLimit) * 100;
 
 return(
