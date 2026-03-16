@@ -86,7 +86,7 @@ toast.error("Delete failed");
 
 };
 
-/* ================= UPDATED DOWNLOAD ================= */
+/* ================= MODAL DOWNLOAD ================= */
 
 const downloadMedia = async (e) => {
 
@@ -118,6 +118,28 @@ window.URL.revokeObjectURL(url);
 toast.error("Download failed");
 
 }
+
+};
+
+/* ================= CARD DOWNLOAD ================= */
+
+const downloadCardMedia=(e,url)=>{
+
+e.stopPropagation();
+
+const link=document.createElement("a");
+
+link.href=url+"?fl_attachment";
+
+const name=url.split("/").pop();
+
+link.download=name;
+
+document.body.appendChild(link);
+
+link.click();
+
+link.remove();
 
 };
 
@@ -222,7 +244,6 @@ useEffect(() => {
 
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
-          console.warn("HLS stream failed, falling back to original MP4");
           video.src = selectedMedia; 
           video.play();
         }
@@ -319,6 +340,15 @@ onClick={()=>openMedia(photo.imageUrl,"image",index)}
 />
 )}
 
+<div className="card-actions">
+
+<button
+className="download-card-btn"
+onClick={(e)=>downloadCardMedia(e,photo.imageUrl)}
+>
+⬇
+</button>
+
 <button
 className="delete-btn"
 onClick={(e)=>{
@@ -328,6 +358,8 @@ deletePhoto(photo._id);
 >
 Delete
 </button>
+
+</div>
 
 </div>
 
