@@ -121,25 +121,42 @@ toast.error("Download failed");
 
 };
 
-/* ================= CARD DOWNLOAD ================= */
+/* ================= CARD DOWNLOAD (UPDATED) ================= */
 
-const downloadCardMedia=(e,url)=>{
+const downloadCardMedia = async (e, url) => {
 
 e.stopPropagation();
 
-const link=document.createElement("a");
+try{
 
-link.href=url+"?fl_attachment";
+const downloadUrl = url + "?fl_attachment";
 
-const name=url.split("/").pop();
+const response = await fetch(downloadUrl);
+const blob = await response.blob();
 
-link.download=name;
+const objectUrl = window.URL.createObjectURL(blob);
+
+const link = document.createElement("a");
+
+link.href = objectUrl;
+
+const fileName = url.split("/").pop().split("?")[0];
+
+link.download = fileName;
 
 document.body.appendChild(link);
 
 link.click();
 
 link.remove();
+
+window.URL.revokeObjectURL(objectUrl);
+
+}catch{
+
+toast.error("Download failed");
+
+}
 
 };
 

@@ -235,39 +235,96 @@ max-height:70vh;
 }
 
 }
-/* CARD BUTTON CONTAINER */
+/* ================= PHOTO CARD ================= */
 
 .photo-card{
 position:relative;
 overflow:hidden;
-border-radius:16px;
+border-radius:18px;
 }
 
-/* BUTTON AREA */
+/* ================= CARD BUTTON CONTAINER ================= */
 
-.card-buttons{
+.card-actions{
 position:absolute;
-bottom:15px;
-right:15px;
+bottom:14px;
+right:14px;
 display:flex;
 gap:10px;
+z-index:5;
 }
 
-/* DOWNLOAD BUTTON */
+/* ================= PREVIEW CARD DOWNLOAD BUTTON ================= */
 
 .download-card-btn{
 
 width:42px;
 height:42px;
 
-border-radius:50%;
-
 border:none;
+border-radius:50%;
 
 background:rgba(0,0,0,0.65);
 color:white;
 
 font-size:18px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+cursor:pointer;
+
+backdrop-filter:blur(6px);
+
+box-shadow:0 6px 15px rgba(0,0,0,0.25);
+
+transition:all 0.3s ease;
+
+}
+
+/* Hover animation */
+
+.download-card-btn:hover{
+
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+
+transform:scale(1.15) rotate(-8deg);
+
+box-shadow:0 10px 25px rgba(0,0,0,0.35);
+
+}
+
+/* Click animation */
+
+.download-card-btn:active{
+
+transform:scale(0.9);
+
+box-shadow:0 4px 10px rgba(0,0,0,0.25);
+
+}
+
+/* ================= FULLSCREEN DOWNLOAD BUTTON ================= */
+
+.download-btn{
+
+position:absolute;
+
+bottom:30px;
+right:30px;
+
+padding:12px 22px;
+
+border:none;
+border-radius:40px;
+
+font-size:15px;
+font-weight:600;
+
+color:white;
+
+background:linear-gradient(135deg,#00c6ff,#0072ff);
 
 cursor:pointer;
 
@@ -275,24 +332,82 @@ display:flex;
 align-items:center;
 justify-content:center;
 
-transition:0.3s;
+box-shadow:0 10px 25px rgba(0,0,0,0.35);
+
+transition:all 0.3s ease;
+
 }
 
-/* HOVER EFFECT */
+/* Hover effect */
 
-.download-card-btn:hover{
-background:#00c6ff;
-transform:scale(1.1);
+.download-btn:hover{
+
+transform:translateY(-4px) scale(1.05);
+
+background:linear-gradient(135deg,#00e5ff,#0059ff);
+
+box-shadow:0 14px 30px rgba(0,0,0,0.4);
+
 }
 
-/* MOBILE */
+/* Click animation */
+
+.download-btn:active{
+
+transform:scale(0.92);
+
+box-shadow:0 5px 12px rgba(0,0,0,0.3);
+
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
 
 @media(max-width:768px){
 
+.download-btn{
+
+bottom:20px;
+right:20px;
+
+padding:10px 16px;
+
+font-size:14px;
+
+}
+
 .download-card-btn{
+
 width:36px;
 height:36px;
+
 font-size:16px;
+
+}
+
+}
+
+/* Small mobile */
+
+@media(max-width:480px){
+
+.download-btn{
+
+bottom:18px;
+right:18px;
+
+padding:9px 14px;
+
+font-size:13px;
+
+}
+
+.download-card-btn{
+
+width:32px;
+height:32px;
+
+font-size:15px;
+
 }
 
 }
