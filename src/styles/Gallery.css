@@ -11,11 +11,9 @@ overflow-x:hidden;
 }
 
 @keyframes gradientMove{
-
 0%{background-position:0% 50%;}
 50%{background-position:100% 50%;}
 100%{background-position:0% 50%;}
-
 }
 
 
@@ -77,6 +75,95 @@ width:100%;
 height:200px;
 object-fit:cover;
 cursor:pointer;
+}
+
+
+/* =========================
+   BUTTON CONTAINER
+========================= */
+
+.card-actions{
+
+position:absolute;
+
+bottom:12px;
+right:12px;
+
+display:flex;
+align-items:center;
+
+gap:8px;
+
+z-index:20;
+
+}
+
+
+/* =========================
+   DOWNLOAD BUTTON
+========================= */
+
+.download-card-btn{
+
+width:36px;
+height:36px;
+
+border:none;
+border-radius:50%;
+
+background:rgba(0,0,0,0.7);
+color:white;
+
+font-size:18px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+cursor:pointer;
+
+transition:0.3s;
+
+}
+
+.download-card-btn:hover{
+
+background:#00c6ff;
+
+transform:scale(1.15);
+
+}
+
+
+/* =========================
+   DELETE BUTTON
+========================= */
+
+.delete-btn{
+
+background:#ff4d4d;
+color:white;
+
+border:none;
+
+padding:6px 12px;
+
+border-radius:8px;
+
+cursor:pointer;
+
+font-size:13px;
+
+transition:0.2s;
+
+}
+
+.delete-btn:hover{
+
+background:#ff0000;
+
+transform:scale(1.05);
+
 }
 
 
@@ -165,6 +252,46 @@ right:20px;
 
 
 /* =========================
+   FULLSCREEN DOWNLOAD BUTTON
+========================= */
+
+.download-btn{
+
+position:absolute;
+
+bottom:25px;
+right:25px;
+
+padding:10px 20px;
+
+border:none;
+border-radius:30px;
+
+font-size:14px;
+font-weight:600;
+
+color:white;
+
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+
+cursor:pointer;
+
+box-shadow:0 8px 20px rgba(0,0,0,0.35);
+
+transition:0.3s;
+
+}
+
+.download-btn:hover{
+
+transform:translateY(-3px);
+
+background:linear-gradient(135deg,#00e5ff,#0059ff);
+
+}
+
+
+/* =========================
    LOADING
 ========================= */
 
@@ -200,217 +327,13 @@ max-height:70vh;
 }
 
 .modal-video{
-width:100%;
-height:auto;
 max-height:70vh;
 }
 
-}
-
-
-/* =========================
-   BUTTON CONTAINER (FIXED)
-========================= */
-
-.card-actions{
-
-position:absolute;
-bottom:14px;
-right:14px;
-
-display:flex;
-align-items:center;
-gap:10px;
-
-z-index:10;
-
-}
-
-
-/* =========================
-   DOWNLOAD BUTTON
-========================= */
-
 .download-card-btn{
-
-width:42px;
-height:42px;
-
-border:none;
-border-radius:50%;
-
-background:rgba(0,0,0,0.65);
-color:white;
-
-font-size:18px;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-cursor:pointer;
-
-backdrop-filter:blur(6px);
-
-box-shadow:0 6px 15px rgba(0,0,0,0.25);
-
-transition:all 0.3s ease;
-
-}
-
-.download-card-btn:hover{
-
-background:linear-gradient(135deg,#00c6ff,#0072ff);
-
-transform:scale(1.15) rotate(-8deg);
-
-box-shadow:0 10px 25px rgba(0,0,0,0.35);
-
-}
-
-.download-card-btn:active{
-
-transform:scale(0.9);
-
-box-shadow:0 4px 10px rgba(0,0,0,0.25);
-
-}
-
-
-/* =========================
-   DELETE BUTTON (UPDATED)
-========================= */
-
-.delete-btn{
-
-background:#ff4d4d;
-color:white;
-
-border:none;
-
-padding:8px 14px;
-
-border-radius:10px;
-
-cursor:pointer;
-
-font-size:14px;
-
-transition:0.2s;
-
-}
-
-.delete-btn:hover{
-
-background:#ff1a1a;
-
-transform:scale(1.05);
-
-}
-
-
-/* =========================
-   FULLSCREEN DOWNLOAD BUTTON
-========================= */
-
-.download-btn{
-
-position:absolute;
-
-bottom:30px;
-right:30px;
-
-padding:12px 22px;
-
-border:none;
-border-radius:40px;
-
-font-size:15px;
-font-weight:600;
-
-color:white;
-
-background:linear-gradient(135deg,#00c6ff,#0072ff);
-
-cursor:pointer;
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-box-shadow:0 10px 25px rgba(0,0,0,0.35);
-
-transition:all 0.3s ease;
-
-}
-
-.download-btn:hover{
-
-transform:translateY(-4px) scale(1.05);
-
-background:linear-gradient(135deg,#00e5ff,#0059ff);
-
-box-shadow:0 14px 30px rgba(0,0,0,0.4);
-
-}
-
-.download-btn:active{
-
-transform:scale(0.92);
-
-box-shadow:0 5px 12px rgba(0,0,0,0.3);
-
-}
-
-
-/* =========================
-   MOBILE BUTTON FIX
-========================= */
-
-@media(max-width:768px){
-
-.download-btn{
-
-bottom:20px;
-right:20px;
-
-padding:10px 16px;
-
-font-size:14px;
-
-}
-
-.download-card-btn{
-
-width:36px;
-height:36px;
-
-font-size:16px;
-
-}
-
-}
-
-@media(max-width:480px){
-
-.download-btn{
-
-bottom:18px;
-right:18px;
-
-padding:9px 14px;
-
-font-size:13px;
-
-}
-
-.download-card-btn{
-
 width:32px;
 height:32px;
-
-font-size:15px;
-
+font-size:16px;
 }
 
 }
