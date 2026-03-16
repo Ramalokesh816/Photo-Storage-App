@@ -81,29 +81,6 @@ cursor:pointer;
 
 
 /* =========================
-   DELETE BUTTON
-========================= */
-
-.delete-btn{
-position:absolute;
-bottom:10px;
-right:10px;
-background:#ff4d4d;
-border:none;
-padding:6px 12px;
-border-radius:6px;
-color:white;
-cursor:pointer;
-font-size:12px;
-transition:.2s;
-}
-
-.delete-btn:hover{
-background:#ff0000;
-}
-
-
-/* =========================
    MODAL
 ========================= */
 
@@ -118,11 +95,7 @@ display:flex;
 align-items:center;
 justify-content:center;
 z-index:999;
-
-/* prevent page scroll */
 overflow:hidden;
-
-/* smooth animation */
 animation:fadeIn .25s ease;
 }
 
@@ -156,8 +129,6 @@ max-width:100%;
 max-height:85vh;
 object-fit:contain;
 background:black;
-
-/* GPU acceleration */
 transform:translateZ(0);
 will-change:transform;
 }
@@ -235,26 +206,30 @@ max-height:70vh;
 }
 
 }
-/* ================= PHOTO CARD ================= */
 
-.photo-card{
-position:relative;
-overflow:hidden;
-border-radius:18px;
-}
 
-/* ================= CARD BUTTON CONTAINER ================= */
+/* =========================
+   BUTTON CONTAINER (FIXED)
+========================= */
 
 .card-actions{
+
 position:absolute;
 bottom:14px;
 right:14px;
+
 display:flex;
+align-items:center;
 gap:10px;
-z-index:5;
+
+z-index:10;
+
 }
 
-/* ================= PREVIEW CARD DOWNLOAD BUTTON ================= */
+
+/* =========================
+   DOWNLOAD BUTTON
+========================= */
 
 .download-card-btn{
 
@@ -264,8 +239,8 @@ height:42px;
 border:none;
 border-radius:50%;
 
-background:rgba(21, 24, 235, 0.65);
-color:rgb(225, 7, 7);
+background:rgba(0,0,0,0.65);
+color:white;
 
 font-size:18px;
 
@@ -283,8 +258,6 @@ transition:all 0.3s ease;
 
 }
 
-/* Hover animation */
-
 .download-card-btn:hover{
 
 background:linear-gradient(135deg,#00c6ff,#0072ff);
@@ -295,8 +268,6 @@ box-shadow:0 10px 25px rgba(0,0,0,0.35);
 
 }
 
-/* Click animation */
-
 .download-card-btn:active{
 
 transform:scale(0.9);
@@ -305,7 +276,42 @@ box-shadow:0 4px 10px rgba(0,0,0,0.25);
 
 }
 
-/* ================= FULLSCREEN DOWNLOAD BUTTON ================= */
+
+/* =========================
+   DELETE BUTTON (UPDATED)
+========================= */
+
+.delete-btn{
+
+background:#ff4d4d;
+color:white;
+
+border:none;
+
+padding:8px 14px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+font-size:14px;
+
+transition:0.2s;
+
+}
+
+.delete-btn:hover{
+
+background:#ff1a1a;
+
+transform:scale(1.05);
+
+}
+
+
+/* =========================
+   FULLSCREEN DOWNLOAD BUTTON
+========================= */
 
 .download-btn{
 
@@ -338,8 +344,6 @@ transition:all 0.3s ease;
 
 }
 
-/* Hover effect */
-
 .download-btn:hover{
 
 transform:translateY(-4px) scale(1.05);
@@ -350,8 +354,6 @@ box-shadow:0 14px 30px rgba(0,0,0,0.4);
 
 }
 
-/* Click animation */
-
 .download-btn:active{
 
 transform:scale(0.92);
@@ -360,7 +362,10 @@ box-shadow:0 5px 12px rgba(0,0,0,0.3);
 
 }
 
-/* ================= MOBILE RESPONSIVE ================= */
+
+/* =========================
+   MOBILE BUTTON FIX
+========================= */
 
 @media(max-width:768px){
 
@@ -385,8 +390,6 @@ font-size:16px;
 }
 
 }
-
-/* Small mobile */
 
 @media(max-width:480px){
 
