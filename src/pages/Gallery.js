@@ -86,21 +86,38 @@ toast.error("Delete failed");
 
 };
 
-/* ================= DOWNLOAD ================= */
+/* ================= UPDATED DOWNLOAD ================= */
 
-const downloadMedia=(e)=>{
+const downloadMedia = async (e) => {
 
 e.stopPropagation();
 
-const link=document.createElement("a");
-link.href=selectedMedia;
+try{
 
-const name=selectedMedia.split("/").pop();
-link.download=name;
+const downloadUrl = selectedMedia + "?fl_attachment";
+
+const response = await fetch(downloadUrl);
+const blob = await response.blob();
+
+const url = window.URL.createObjectURL(blob);
+
+const link = document.createElement("a");
+link.href = url;
+
+const fileName = selectedMedia.split("/").pop().split("?")[0];
+link.download = fileName;
 
 document.body.appendChild(link);
 link.click();
+
 link.remove();
+window.URL.revokeObjectURL(url);
+
+}catch{
+
+toast.error("Download failed");
+
+}
 
 };
 
@@ -181,6 +198,7 @@ setTouchEnd(null);
 };
 
 /* ================= HLS STREAMING ================= */
+
 useEffect(() => {
   let hls;
 
@@ -213,10 +231,15 @@ useEffect(() => {
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(() => {});
       });
+
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+
       video.src = hlsUrl;
+
     } else {
+
       video.src = selectedMedia;
+
     }
   }
 
@@ -228,6 +251,7 @@ useEffect(() => {
       videoRef.current.load();
     }
   };
+
 }, [selectedMedia, selectedType]);
 
 /* ================= LOADING ================= */
