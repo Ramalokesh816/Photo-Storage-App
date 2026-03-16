@@ -86,6 +86,24 @@ toast.error("Delete failed");
 
 };
 
+/* ================= DOWNLOAD ================= */
+
+const downloadMedia=(e)=>{
+
+e.stopPropagation();
+
+const link=document.createElement("a");
+link.href=selectedMedia;
+
+const name=selectedMedia.split("/").pop();
+link.download=name;
+
+document.body.appendChild(link);
+link.click();
+link.remove();
+
+};
+
 /* ================= FILTER ================= */
 
 const filteredPhotos =
@@ -184,7 +202,6 @@ useEffect(() => {
       hls.loadSource(hlsUrl);
       hls.attachMedia(video);
 
-      // ADD THIS ERROR HANDLER: If HLS fails (e.g. still processing), switch to MP4
       hls.on(Hls.Events.ERROR, (event, data) => {
         if (data.fatal) {
           console.warn("HLS stream failed, falling back to original MP4");
@@ -199,7 +216,6 @@ useEffect(() => {
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = hlsUrl;
     } else {
-      // Default fallback
       video.src = selectedMedia;
     }
   }
@@ -213,6 +229,7 @@ useEffect(() => {
     }
   };
 }, [selectedMedia, selectedType]);
+
 /* ================= LOADING ================= */
 
 if(loading){
@@ -315,7 +332,7 @@ onTouchEnd={handleTouchEnd}
   ref={videoRef}
   controls
   playsInline
-  preload="metadata" // Add this back!
+  preload="metadata"
   className="modal-video"
   onClick={(e)=>e.stopPropagation()}
 />
@@ -330,6 +347,13 @@ onClick={(e)=>e.stopPropagation()}
 onDoubleClick={toggleZoom}
 />
 )}
+
+<button
+className="download-btn"
+onClick={downloadMedia}
+>
+Download
+</button>
 
 <button className="arrow right" onClick={nextMedia}>❯</button>
 
