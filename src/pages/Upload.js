@@ -7,316 +7,316 @@ import "../styles/Upload.css";
 
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
-SortableContext,
-useSortable,
-arrayMove,
-verticalListSortingStrategy
+  SortableContext,
+  useSortable,
+  arrayMove,
+  verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 
 import { CSS } from "@dnd-kit/utilities";
 
-function Upload(){
+function Upload() {
 
-const [files,setFiles] = useState([]);
-const [album,setAlbum] = useState("General");
-const [loading,setLoading] = useState(false);
-const [progress,setProgress] = useState(0);
+  const [files, setFiles] = useState([]);
+  const [album, setAlbum] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-/* =========================
-   LOAD SAVED FILES
-========================= */
+  /* =========================
+     LOAD SAVED FILES
+  ========================= */
 
-useEffect(()=>{
+  useEffect(() => {
 
-const saved = localStorage.getItem("uploadFiles");
+    const saved = localStorage.getItem("uploadFiles");
 
-if(saved){
-setFiles(JSON.parse(saved));
-}
+    if (saved) {
+      setFiles(JSON.parse(saved));
+    }
 
-},[]);
+  }, []);
 
-/* =========================
-   SAVE FILES
-========================= */
+  /* =========================
+     SAVE FILES
+  ========================= */
 
-useEffect(()=>{
-localStorage.setItem("uploadFiles",JSON.stringify(files));
-},[files]);
+  useEffect(() => {
+    localStorage.setItem("uploadFiles", JSON.stringify(files));
+  }, [files]);
 
-/* =========================
-   DROPZONE
-========================= */
+  /* =========================
+     DROPZONE
+  ========================= */
 
-const onDrop = (acceptedFiles)=>{
+  const onDrop = (acceptedFiles) => {
 
-acceptedFiles.forEach(file=>{
+    acceptedFiles.forEach(file => {
 
-const newFile = {
-id:Math.random().toString(),
-file:file,
-fileType:file.type,
-preview:URL.createObjectURL(file)
-};
+      const newFile = {
+        id: Math.random().toString(),
+        file: file,
+        fileType: file.type,
+        preview: URL.createObjectURL(file)
+      };
 
-setFiles(prev=>[...prev,newFile]);
+      setFiles(prev => [...prev, newFile]);
 
-});
+    });
 
-};
+  };
 
-const {getRootProps,getInputProps} = useDropzone({
-accept:{
-"image/*":[],
-"video/*":[]
-},
-onDrop
-});
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      "image/*": [],
+      "video/*": []
+    },
+    onDrop
+  });
 
-/* =========================
-   REMOVE FILE
-========================= */
+  /* =========================
+     REMOVE FILE
+  ========================= */
 
-const removeFile = (id)=>{
+  const removeFile = (id) => {
 
-setFiles(prev=>prev.filter(file=>file.id !== id));
+    setFiles(prev => prev.filter(file => file.id !== id));
 
-};
+  };
 
-/* =========================
-   DRAG REORDER
-========================= */
+  /* =========================
+     DRAG REORDER
+  ========================= */
 
-const handleDragEnd = (event)=>{
+  const handleDragEnd = (event) => {
 
-const {active,over} = event;
+    const { active, over } = event;
 
-if(!over) return;
+    if (!over) return;
 
-if(active.id !== over.id){
+    if (active.id !== over.id) {
 
-const oldIndex = files.findIndex(f=>f.id === active.id);
-const newIndex = files.findIndex(f=>f.id === over.id);
+      const oldIndex = files.findIndex(f => f.id === active.id);
+      const newIndex = files.findIndex(f => f.id === over.id);
 
-setFiles(arrayMove(files,oldIndex,newIndex));
+      setFiles(arrayMove(files, oldIndex, newIndex));
 
-}
+    }
 
-};
+  };
 
-/* =========================
-   UPLOAD FILES
-========================= */
+  /* =========================
+     UPLOAD FILES
+  ========================= */
 
-const uploadAll = async ()=>{
+  const uploadAll = async () => {
 
-if(files.length===0){
-alert("Select files first");
-return;
-}
+    if (files.length === 0) {
+      alert("Select files first");
+      return;
+    }
 
-setLoading(true);
-setProgress(0);
+    if (!album.trim()) {
+      alert("Please enter folder name");
+      return;
+    }
 
-try{
+    setLoading(true);
+    setProgress(0);
 
-const token = localStorage.getItem("token");
+    try {
 
-for(let i=0;i<files.length;i++){
+      const token = localStorage.getItem("token");
 
-const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
 
-formData.append("file",files[i].file);
-formData.append("album",album);
+        const formData = new FormData();
 
-await fetch(
-"https://photo-storage-app.onrender.com/api/upload",
-{
-method:"POST",
-headers:{
-Authorization:`Bearer ${token}`
-},
-body:formData
-});
+        formData.append("file", files[i].file);
+        formData.append("album", album);
 
-const percent = Math.round(((i+1)/files.length)*100);
-setProgress(percent);
+        await fetch(
+          "https://photo-storage-app.onrender.com/api/upload",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`
+            },
+            body: formData
+          });
 
-}
+        const percent = Math.round(((i + 1) / files.length) * 100);
+        setProgress(percent);
 
-toast.success("Media uploaded successfully 🎉");
+      }
 
-setFiles([]);
-localStorage.removeItem("uploadFiles");
+      toast.success("Media uploaded successfully 🎉");
 
-}catch(error){
+      setFiles([]);
+      localStorage.removeItem("uploadFiles");
+      setAlbum("");
 
-console.log(error);
-toast.error("Upload failed");
+    } catch (error) {
 
-}
+      console.log(error);
+      toast.error("Upload failed");
 
-setLoading(false);
+    }
 
-};
+    setLoading(false);
 
-/* =========================
-   SORTABLE PREVIEW ITEM
-========================= */
+  };
 
-function SortableItem({file}){
+  /* =========================
+     SORTABLE PREVIEW ITEM
+  ========================= */
 
-const {
-attributes,
-listeners,
-setNodeRef,
-transform,
-transition
-} = useSortable({id:file.id});
+  function SortableItem({ file }) {
 
-const style={
-transform:CSS.Transform.toString(transform),
-transition
-};
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition
+    } = useSortable({ id: file.id });
 
-return(
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition
+    };
 
-<div
-ref={setNodeRef}
-style={style}
-className="preview-card"
->
+    return (
 
-<div {...attributes} {...listeners}>
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="preview-card"
+      >
 
-{file.fileType.startsWith("image") ? (
+        <div {...attributes} {...listeners}>
 
-<img src={file.preview} alt="preview"/>
+          {file.fileType.startsWith("image") ? (
 
-) : (
+            <img src={file.preview} alt="preview" />
 
-<video controls>
-<source src={file.preview}/>
-</video>
+          ) : (
 
-)}
+            <video controls>
+              <source src={file.preview} />
+            </video>
 
-</div>
+          )}
 
-<button
-className="remove-btn"
-onPointerDown={(e)=>e.stopPropagation()}
-onClick={()=>removeFile(file.id)}
->
-Remove
-</button>
+        </div>
 
-</div>
+        <button
+          className="remove-btn"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => removeFile(file.id)}
+        >
+          Remove
+        </button>
 
-);
+      </div>
 
-}
+    );
 
-/* =========================
-   UI
-========================= */
+  }
 
-return(
+  /* =========================
+     UI
+  ========================= */
 
-<div>
+  return (
 
-<Header/>
+    <div>
 
-<div className="upload-container">
+      <Header />
 
-<h2>Upload Media</h2>
+      <div className="upload-container">
 
-{/* DROP AREA */}
+        <h2>Upload Media</h2>
 
-<div {...getRootProps()} className="dropzone">
+        {/* DROP AREA */}
 
-<input {...getInputProps()} />
+        <div {...getRootProps()} className="dropzone">
 
-<p>Drag & Drop media or click to select</p>
+          <input {...getInputProps()} />
 
-</div>
+          <p>Drag & Drop media or click to select</p>
 
-{/* DRAG SORT */}
+        </div>
 
-<DndContext
-collisionDetection={closestCenter}
-onDragEnd={handleDragEnd}
->
+        {/* DRAG SORT */}
 
-<SortableContext
-items={files.map(f=>f.id)}
-strategy={verticalListSortingStrategy}
->
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
 
-<div className="preview-grid">
+          <SortableContext
+            items={files.map(f => f.id)}
+            strategy={verticalListSortingStrategy}
+          >
 
-{files.map(file=>(
-<SortableItem key={file.id} file={file}/>
-))}
+            <div className="preview-grid">
 
-</div>
+              {files.map(file => (
+                <SortableItem key={file.id} file={file} />
+              ))}
 
-</SortableContext>
+            </div>
 
-</DndContext>
+          </SortableContext>
 
-{/* PROGRESS BAR */}
+        </DndContext>
 
-{loading && (
+        {/* PROGRESS BAR */}
 
-<div className="progress-wrapper">
+        {loading && (
 
-<div
-className="progress-bar"
-style={{width:`${progress}%`}}
-></div>
+          <div className="progress-wrapper">
 
-<p>{progress}% Uploaded</p>
+            <div
+              className="progress-bar"
+              style={{ width: `${progress}%` }}
+            ></div>
 
-</div>
+            <p>{progress}% Uploaded</p>
 
-)}
+          </div>
 
-{/* ALBUM SELECT */}
+        )}
 
-<select
-value={album}
-onChange={(e)=>setAlbum(e.target.value)}
-className="album-select"
->
+        {/* FOLDER NAME INPUT */}
 
-<option value="General">General</option>
-<option value="Vacation">Vacation</option>
-<option value="Family">Family</option>
-<option value="Friends">Friends</option>
-<option value="Work">Work</option>
+        <input
+          type="text"
+          value={album}
+          onChange={(e) => setAlbum(e.target.value)}
+          className="album-select"
+          placeholder="Enter folder name"
+        />
 
-</select>
+        {/* UPLOAD BUTTON */}
 
-{/* UPLOAD BUTTON */}
+        <button
+          className="upload-btn"
+          onClick={uploadAll}
+          disabled={loading}
+        >
 
-<button
-className="upload-btn"
-onClick={uploadAll}
-disabled={loading}
->
+          {loading ? "Uploading..." : "Upload All"}
 
-{loading ? "Uploading..." : "Upload All"}
+        </button>
 
-</button>
+      </div>
 
-</div>
+      <Footer />
 
-<Footer/>
+    </div>
 
-</div>
-
-);
+  );
 
 }
 

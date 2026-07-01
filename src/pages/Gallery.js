@@ -167,6 +167,14 @@ selectedAlbum==="All"
 ? photos
 : photos.filter(p=>p.album?.toLowerCase()===selectedAlbum.toLowerCase());
 
+const albums = [
+"All",
+...new Set(
+photos
+.map(photo=>photo.album)
+.filter(Boolean)
+)
+];
 /* ================= OPEN ================= */
 
 const openMedia=(url,type,index)=>{
@@ -326,12 +334,16 @@ value={selectedAlbum}
 onChange={(e)=>setSelectedAlbum(e.target.value)}
 >
 
-<option value="All">All</option>
-<option value="General">General</option>
-<option value="Vacation">Vacation</option>
-<option value="Family">Family</option>
-<option value="Friends">Friends</option>
-<option value="Work">Work</option>
+{albums.map(album=>(
+
+<option
+key={album}
+value={album}
+>
+{album}
+</option>
+
+))}
 
 </select>
 
